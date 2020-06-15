@@ -32,5 +32,7 @@
 *.app
 
 # Visual studio
-*/.vs
-*/Debug
+.vs
+Debug
+ipch
+*.VC.*
