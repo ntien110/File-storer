@@ -38,3 +38,4 @@ Debug
 ipch
 *.VC.*
 */*vcxproj.*
+*/x64
