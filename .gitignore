@@ -34,5 +34,6 @@
 # Visual studio
 .vs
 Debug
+*Debug
 ipch
 *.VC.*
