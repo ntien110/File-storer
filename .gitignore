@@ -37,3 +37,4 @@ Debug
 *Debug
 ipch
 *.VC.*
+*vcxproj*
