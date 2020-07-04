@@ -4,7 +4,9 @@
 
 #pragma comment (lib, "Ws2_32.lib")
 
-#define BUFF_SIZE 2048
+#define BUFF_SIZE 8
+
+using namespace std;
 
 int sendMessage(SOCKET client, char *message, int length) {
 	int ret, index = 0;
@@ -18,6 +20,7 @@ int sendMessage(SOCKET client, char *message, int length) {
 		index += ret;
 		length -= ret;
 	}
+	cout << "Da gui: " << message << endl;
 	return index;
 }
 
@@ -28,12 +31,17 @@ int receiveMessage(SOCKET client, char *message) {
 	ret = recv(client, len, BUFF_SIZE, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	int length = atoi(len);
+	cout << "Da nhan do dai: " << length << endl;
 	while (length > 0) {
 		ret = recv(client, &message[index], length, 0);
-		if (ret == SOCKET_ERROR) continue;
+		if (ret == SOCKET_ERROR) {
+			cout << "Loi" << endl;
+			continue;
+		}
 		index += ret;
 		length -= ret;
 	}
 	message[index] = '\0';
+	cout << "Da nhan: " << message << endl;
 	return index;
 }

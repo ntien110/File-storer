@@ -1,58 +1,38 @@
 // Client.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include "stdio.h"
 #include "conio.h"
-#include "winsock2.h"
-#include "ws2tcpip.h"
-#include <string>
 #include "helper.h"
+#include "Connection.h"
+#include <string>
+#include "mswsock.h"
+
+#pragma comment(lib, "Mswsock.lib")
 
 #define BUFF_SIZE 2048
 #define PORT 5500
 #define IPADDR "127.0.0.1"
 
-#pragma comment (lib, "Ws2_32.lib")
-
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	//Step 1: Create WinSock
-	int port = PORT;
-	WSADATA wsaData;
-	WORD wVersion = MAKEWORD(2, 2);
-	if (WSAStartup(wVersion, &wsaData)) {
-		printf("Version is not support.\n");
-	}
-	//Step 2: Construct socket
 	SOCKET client;
-	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	//(optional) Set time-out for receiving
-	int tv = 5000; //Time-out interval: 5000ms
-	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO,
-		(const char*)(&tv), sizeof(int));
-	//Step 3: Bind address to socket
-	sockaddr_in serverAddr;
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(port);
-	serverAddr.sin_addr.s_addr = inet_addr(IPADDR);
-	//Step 4: Request to connect server
-	if (connect(client, (sockaddr *)&serverAddr,
-		sizeof(serverAddr))) {
-		printf("Error! Cannot connect server.\n");
-		_getch();
-		return 0;
-	}
+	int result = connectToServer(PORT, IPADDR, client);
+	if (result == 0) return 0;
 	//Step 5: Communicate with server
 	char buff[BUFF_SIZE], response[BUFF_SIZE];
 	int ret;
 	//Send message
+	FILE *fp;
+	fopen_s(&fp, "log.txt", "r");
 	do {
 		gets_s(buff, BUFF_SIZE);
 		ret = sendMessage(client, buff, strlen(buff));
 		if (ret == SOCKET_ERROR)
 			printf("Error! Cannot send mesage.\n");
+		/*bool ret1 = TransmitFile(client, fp, 0, 0, NULL, NULL, TF_USE_DEFAULT_WORKER);
+		if (!ret1)
+			printf("Error! Cannot send mesage %d.\n", WSAGetLastError());*/
 		//Receive echo message
 		ret = receiveMessage(client, response);
 		if (ret == SOCKET_ERROR) {

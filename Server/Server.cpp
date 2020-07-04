@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include <winsock2.h>
 #include <windows.h>
-#include <stdio.h>
+#include "Connection.h"
 #pragma comment(lib, "Ws2_32.lib")
 
 #define PORT 5500
-#define DATA_BUFSIZE 8192
+#define DATA_BUFSIZE 8
+
+using namespace std;
 
 typedef struct _SOCKET_INFORMATION {
 	OVERLAPPED Overlapped;
@@ -18,67 +20,32 @@ typedef struct _SOCKET_INFORMATION {
 
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED Overlapped, DWORD InFlags);
 DWORD WINAPI WorkerThread(LPVOID lpParameter);
-SOCKET AcceptSocket;
+SOCKET clientSocket;
 
 int main(int argc, char **argv) {
-	WSADATA wsaData;
-	SOCKET ListenSocket;
-	SOCKADDR_IN InternetAddr;
-	INT Ret;
+	SOCKET listenSocket;
 	HANDLE ThreadHandle;
 	DWORD ThreadId;
-	WSAEVENT AcceptEvent;
+	WSAEVENT acceptEvent;
+	int ret;
 
-	if ((Ret = WSAStartup((2, 2), &wsaData)) != 0) {
-		printf("WSAStartup() failed with error %d\n", Ret);
-		WSACleanup();
-		return 1;
-	} else 
-		printf("WSAStartup() is OK!\n");
+	ret = initServer(PORT, listenSocket);
+	if (ret == 0) return 0;
 
-	if ((ListenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET) {
-		printf("Failed to get a socket %d\n", WSAGetLastError());
-		return 1;
-	} else 
-		printf("WSASocket() is pretty fine!\n");
-
-	InternetAddr.sin_family = AF_INET;
-	InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	InternetAddr.sin_port = htons(PORT);
-
-	if (bind(ListenSocket, (PSOCKADDR)&InternetAddr, sizeof(InternetAddr)) == SOCKET_ERROR) {
-		printf("bind() failed with error %d\n", WSAGetLastError());
-		return 1;
-	} else 
-		printf("bind() is OK!\n");
-
-	if (listen(ListenSocket, 5)) {
-		printf("listen() failed with error %d\n", WSAGetLastError());
-		return 1;
-	} else
-		printf("listen() is OK!\n");
-	printf("Server started!\n");
-
-	if ((AcceptEvent = WSACreateEvent()) == WSA_INVALID_EVENT) {
-		printf("WSACreateEvent() failed with error %d\n", WSAGetLastError());
-		return 1;
-	} else
-		printf("WSACreateEvent() is OK!\n");
+	ret = initAcceptEvent(acceptEvent);
+	if (ret == 0) return 0;
 
 	// Create a worker thread to service completed I/O requests
-	if ((ThreadHandle = CreateThread(NULL, 0, WorkerThread, (LPVOID)AcceptEvent, 0, &ThreadId)) == NULL) {
+	if ((ThreadHandle = CreateThread(NULL, 0, WorkerThread, (LPVOID)acceptEvent, 0, &ThreadId)) == NULL) {
 		printf("CreateThread() failed with error %d\n", GetLastError());
 		return 1;
 	} else
 		printf("CreateThread() should be fine!\n");
 
 	while (TRUE) {
-		AcceptSocket = accept(ListenSocket, NULL, NULL);
-		if (WSASetEvent(AcceptEvent) == FALSE) {
-			printf("WSASetEvent() failed with error %d\n", WSAGetLastError());
-			return 1;
-		} else
-			printf("WSASetEvent() should be working!\n");
+		ret = acceptFromClient(listenSocket, clientSocket, acceptEvent);
+		cout << "accept" << endl;
+		if (ret == 0) return 0;
 	}
 }
 
@@ -116,7 +83,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter) {
 			printf("GlobalAlloc() for SOCKET_INFORMATION is OK!\n");
 
 		// Fill in the details of our accepted socket
-		SocketInfo->Socket = AcceptSocket;
+		SocketInfo->Socket = clientSocket;
 		ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
 		SocketInfo->BytesSEND = 0;
 		SocketInfo->BytesRECV = 0;
@@ -133,8 +100,8 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter) {
 			}
 		} else
 			printf("WSARecv() is OK!\n");
-
-		printf("Socket %d got connected...\n", AcceptSocket);
+		cout << "1111: " << SocketInfo->DataBuf.buf << endl;
+		printf("Socket %d got connected...\n", clientSocket);
 	}
 	return TRUE;
 }
@@ -144,6 +111,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED
 	DWORD Flags;
 	// Reference the WSAOVERLAPPED structure as a SOCKET_INFORMATION structure
 	LPSOCKET_INFORMATION SI = (LPSOCKET_INFORMATION)Overlapped;
+	cout << "1111: " << SI->DataBuf.buf << endl;
 
 	if (Error != 0) {
 		printf("I/O operation failed with error %d\n", Error);
@@ -173,6 +141,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED
 		ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
 		SI->DataBuf.buf = SI->Buffer + SI->BytesSEND;
 		SI->DataBuf.len = SI->BytesRECV - SI->BytesSEND;
+		cout << "Da gui: " << SI->DataBuf.buf << endl;
 		if (WSASend(SI->Socket, &(SI->DataBuf), 1, &SendBytes, 0, &(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR) {
 			if (WSAGetLastError() != WSA_IO_PENDING) {
 				printf("WSASend() failed with error %d\n", WSAGetLastError());
@@ -194,6 +163,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED
 				return;
 			}
 		} else
-			printf("WSARecv() is fine!\n");
+			/*printf("WSARecv() is fine!\n");*/
+			cout << "Da nhan: " << SI->DataBuf.buf << endl;
 	}
 }
