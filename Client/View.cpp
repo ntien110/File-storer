@@ -21,12 +21,12 @@ void drawResponse(int code, string response) {
 	cout << "\t----------------------------------------------------------------------------\n";
 }
 
-void registerView(SOCKET clientSocket) {
+void registerView() {
 	char username[256], password[256];
-	registerService(clientSocket, "", "");
+	registerService("", "");
 };
 
-void loginView(SOCKET clientSocket, bool &isLoggedIn) {
+void loginView(bool &isLoggedIn) {
 	char username[256], password[256];
 
 	if (isLoggedIn) {
@@ -37,7 +37,7 @@ void loginView(SOCKET clientSocket, bool &isLoggedIn) {
 	cin >> username;
 	cout << "Password: ";
 	cin >> password;
-	Message result = loginService(clientSocket, username, password);
+	Message result = loginService(username, password);
 	if (result.opcode == NULL) {
 		drawResponse(0, "Failed! wrong username or password");
 		return;
@@ -47,6 +47,6 @@ void loginView(SOCKET clientSocket, bool &isLoggedIn) {
 	}
 };
 
-void logoutView(SOCKET clientSocket, bool &isLogged) {};
-void uploadFileView(SOCKET clientSocket, bool &isLogged) {};
-void downloadFileView(SOCKET clientSocket, bool &isLogged) {};
+void logoutView(bool &isLogged) {};
+void uploadFileView(bool &isLogged) {};
+void downloadFileView(bool &isLogged) {};

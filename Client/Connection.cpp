@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Connection.h"
 
+#pragma warning(disable:4996)
+
 SOCKET connectToServer(int port, char *ip_addr) {
 	//Step 1: Create WinSock
 	WSADATA wsaData;

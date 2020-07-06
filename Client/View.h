@@ -12,10 +12,10 @@ using namespace std;
 void drawOptions(string title, string options[], int count);
 void drawResponse(int code, string response);
 
-void registerView(SOCKET clientSocket);
-void loginView(SOCKET clientSocket, bool &isLogged);
-void logoutView(SOCKET clientSocket, bool &isLogged);
-void uploadFileView(SOCKET clientSocket, bool &isLogged);
-void downloadFileView(SOCKET clientSocket, bool &isLogged);
+void registerView();
+void loginView(bool &isLogged);
+void logoutView(bool &isLogged);
+void uploadFileView(bool &isLogged);
+void downloadFileView(bool &isLogged);
 
 #endif

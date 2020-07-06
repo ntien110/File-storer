@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <iostream>
+#include "winsock2.h"
+
+#pragma warning(disable:4996)
 
 using namespace std;
 
@@ -52,4 +55,6 @@ enum RESPONSE_CODE {
 	DOWNLOAD_FILE_SUCCESS = 240,
 	DOWNLOAD_FILE_FAIL = 244,
 };
+
+extern SOCKET CLIENT;
 // TODO: reference additional headers your program requires here

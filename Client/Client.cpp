@@ -16,12 +16,13 @@
 
 using namespace std;
 
+SOCKET CLIENT;
+
 int main(int argc, char *argv[]) {
-	SOCKET client;
 	char chosen;
 	//Request connection to server
-	client = connectToServer(PORT, IPADDR);
-	if (client == NULL) return 0;
+	CLIENT = connectToServer(PORT, IPADDR);
+	if (CLIENT == NULL) return 0;
 	//Step 5: Communicate with server
 	bool isLoggedIn = false;
 	string options[6] = { "Dang ki tai khoan", "Dang nhap", "Tai file len server", "Doc file tu server", "Dang xuat", "Thoat chuong trinh"};
@@ -32,24 +33,24 @@ int main(int argc, char *argv[]) {
 		system("CLS");
 		switch (chosen) {
 		case '1':
-			registerView(client);
+			registerView();
 			break;
 		case '2':
-			loginView(client, isLoggedIn);
+			loginView(isLoggedIn);
 			break;
 		case '3':
-			uploadFileView(client, isLoggedIn);
+			uploadFileView(isLoggedIn);
 			break;
 		case '4':
-			downloadFileView(client, isLoggedIn);
+			downloadFileView(isLoggedIn);
 			break;
 		case '5':
-			logoutView(client, isLoggedIn);
+			logoutView(isLoggedIn);
 			break;
 		case '6':
 		{
 			//Step 6: Close socket and Terminate Winsock
-			closesocket(client);
+			closesocket(CLIENT);
 			WSACleanup();
 			break;
 		}
