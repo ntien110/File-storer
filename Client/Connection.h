@@ -8,6 +8,6 @@
 #ifndef _CONNECTION_H_
 #define _CONNECTION_H_
 
-int connectToServer(int port, char *ip_addr, SOCKET &client);
+SOCKET connectToServer(int port, char *ip_addr);
 
 #endif

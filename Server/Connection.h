@@ -9,8 +9,9 @@
 #ifndef _CONNECTION_H_
 #define _CONNECTION_H_
 
-int initServer(int port, SOCKET &listenSocket);
-int initAcceptEvent(WSAEVENT &AcceptEvent);
-int acceptFromClient(SOCKET &listenSocket, SOCKET &clientSocket, WSAEVENT &acceptEvent);
+int initServer(int port, SOCKET &listenSocket, SOCKET *socks, WSAEVENT *events, DWORD &nEvents);
+SOCKET acceptClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent);
+int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent);
+int closeClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent);
 
 #endif

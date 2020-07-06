@@ -4,8 +4,6 @@
 
 #pragma comment (lib, "Ws2_32.lib")
 
-#define BUFF_SIZE 8
-
 using namespace std;
 
 int sendMessage(SOCKET client, char *message, int length) {
@@ -31,11 +29,9 @@ int receiveMessage(SOCKET client, char *message) {
 	ret = recv(client, len, BUFF_SIZE, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	int length = atoi(len);
-	cout << "Da nhan do dai: " << length << endl;
 	while (length > 0) {
 		ret = recv(client, &message[index], length, 0);
 		if (ret == SOCKET_ERROR) {
-			cout << "Loi" << endl;
 			continue;
 		}
 		index += ret;
@@ -44,4 +40,30 @@ int receiveMessage(SOCKET client, char *message) {
 	message[index] = '\0';
 	cout << "Da nhan: " << message << endl;
 	return index;
+}
+
+void str_cpy(char *dest, char *src) {
+	while (*src) {
+		*(dest++) = *(src++);
+	}
+	*dest = '\0';
+}
+
+Message buffToMessage(char *buff) {
+	Message message;
+	//memcpy(&message, buff, sizeof(message));
+	message.opcode = buff[0];
+	message.length = buff[1] << 8 | buff[2];
+	str_cpy(message.payload, buff + 3);
+	return message;
+}
+
+
+void messageToBuff(Message message, char *buff) {
+	//memcpy(buff, &message, sizeof(message));
+	buff[0] = (char)message.opcode;
+	buff[1] = message.length >> 8;
+	buff[2] = message.length & 0xFF;
+	//Convert payload
+	str_cpy(buff + 3, message.payload);
 }

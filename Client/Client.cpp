@@ -6,10 +6,11 @@
 #include "Connection.h"
 #include <string>
 #include "mswsock.h"
+#include "View.h"
+#include "Service.h"
 
 #pragma comment(lib, "Mswsock.lib")
 
-#define BUFF_SIZE 2048
 #define PORT 5500
 #define IPADDR "127.0.0.1"
 
@@ -17,39 +18,45 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	SOCKET client;
-	int result = connectToServer(PORT, IPADDR, client);
-	if (result == 0) return 0;
+	char chosen;
+	//Request connection to server
+	client = connectToServer(PORT, IPADDR);
+	if (client == NULL) return 0;
 	//Step 5: Communicate with server
-	char buff[BUFF_SIZE], response[BUFF_SIZE];
-	int ret;
-	//Send message
-	FILE *fp;
-	fopen_s(&fp, "log.txt", "r");
+	bool isLoggedIn = false;
+	string options[6] = { "Dang ki tai khoan", "Dang nhap", "Tai file len server", "Doc file tu server", "Dang xuat", "Thoat chuong trinh"};
 	do {
-		gets_s(buff, BUFF_SIZE);
-		ret = sendMessage(client, buff, strlen(buff));
-		if (ret == SOCKET_ERROR)
-			printf("Error! Cannot send mesage.\n");
-		/*bool ret1 = TransmitFile(client, fp, 0, 0, NULL, NULL, TF_USE_DEFAULT_WORKER);
-		if (!ret1)
-			printf("Error! Cannot send mesage %d.\n", WSAGetLastError());*/
-		//Receive echo message
-		ret = receiveMessage(client, response);
-		if (ret == SOCKET_ERROR) {
-			if (WSAGetLastError() == WSAETIMEDOUT)
-				printf("Time-out!\n");
-			else printf("Error! Cannot receive message.\n");
+		drawOptions("MENU", options, 6);
+		cout << "Nhap lua chon cua ban: ";
+		cin >> chosen;
+		system("CLS");
+		switch (chosen) {
+		case '1':
+			registerView(client);
+			break;
+		case '2':
+			loginView(client, isLoggedIn);
+			break;
+		case '3':
+			uploadFileView(client, isLoggedIn);
+			break;
+		case '4':
+			downloadFileView(client, isLoggedIn);
+			break;
+		case '5':
+			logoutView(client, isLoggedIn);
+			break;
+		case '6':
+		{
+			//Step 6: Close socket and Terminate Winsock
+			closesocket(client);
+			WSACleanup();
+			break;
 		}
-		else {
-			response[ret] = '\0';
-			if (strcmp(response, "\0") == 0) break;
-			printf("%s\n", response);
-		}
-	} while (true);
-	//Step 6: Close socket
-	closesocket(client);
-	//Step 7: Terminate Winsock
-	WSACleanup();
+		default:
+			cout << "Lua chon khong phu hop, vui long chon lai!!!!/n";
+			break;
+		};
+	} while (chosen != '6');
 	return 0;
 }
-

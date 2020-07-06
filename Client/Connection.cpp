@@ -1,15 +1,16 @@
 #include "stdafx.h"
 #include "Connection.h"
 
-int connectToServer(int port, char *ip_addr, SOCKET &client) {
+SOCKET connectToServer(int port, char *ip_addr) {
 	//Step 1: Create WinSock
 	WSADATA wsaData;
 	WORD wVersion = MAKEWORD(2, 2);
 	if (WSAStartup(wVersion, &wsaData)) {
 		printf("Version is not support.\n");
+		return NULL;
 	}
 	//Step 2: Construct socket
-	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	//(optional) Set time-out for receiving
 	int tv = 500000; //Time-out interval: 5000ms
 	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO,
@@ -23,7 +24,7 @@ int connectToServer(int port, char *ip_addr, SOCKET &client) {
 	if (connect(client, (sockaddr *)&serverAddr,
 		sizeof(serverAddr))) {
 		printf("Error! Cannot connect server.\n");
-		return 0;
+		return NULL;
 	}
-	return 1;
+	return client;
 }
