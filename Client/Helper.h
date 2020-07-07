@@ -8,7 +8,7 @@
 
 int sendMessage(char *message, int length);
 int receiveMessage(char *message);
-void str_cpy(char *dest, char *src);
+void str_cpy(char *dest, char *src, int len);
 Message buffToMessage(char *buff);
 int messageToBuff(Message message, char *buff);
 

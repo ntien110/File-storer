@@ -72,10 +72,7 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 		return -1;
 	}
 	else {
-		//get message -> resolve message -> create message response -> send response//echo to client
-		/*memcpy(sendBuff, recvBuff, ret);
-		sendMessage(socket, sendBuff, ret);
-		return ret;*/
+		//get message -> resolve message -> create message response -> send response
 		Message message = buffToMessage(recvBuff);
 		switch (message.opcode) {
 		case REGISTER:
@@ -87,11 +84,19 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 		case LOGOUT:
 			ret = logoutService(socket, message);
 			break;
+		case GET_META_FILE:
+			break;
 		case UPLOAD_FILE:
 			ret = uploadFileService(socket, message);
 			break;
 		case DOWNLOAD_FILE:
 			ret = downloadFileService(socket, message);
+			break;
+		case UPLOAD_FOLDER:
+			break;
+		case DOWNLOAD_FOLDER: 
+			break;
+		case DELETE_DATA: 
 			break;
 		default:
 			cout << "Request is not found!!!" << endl;
