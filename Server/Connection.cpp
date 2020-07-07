@@ -79,19 +79,19 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 		Message message = buffToMessage(recvBuff);
 		switch (message.opcode) {
 		case REGISTER:
-			ret = registerService(message);
+			ret = registerService(socket, message);
 			break;
 		case LOGIN:
-			ret = loginService(message);
+			ret = loginService(socket, message);
 			break;
 		case LOGOUT:
-			ret = logoutService(message);
+			ret = logoutService(socket, message);
 			break;
 		case UPLOAD_FILE:
-			ret = uploadFileService(message);
+			ret = uploadFileService(socket, message);
 			break;
 		case DOWNLOAD_FILE:
-			ret = downloadFileService(message);
+			ret = downloadFileService(socket, message);
 			break;
 		default:
 			cout << "Request is not found!!!" << endl;

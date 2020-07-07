@@ -9,6 +9,9 @@
 using namespace std;
 namespace fs = std::experimental::filesystem;
 
+//------------------------------Directory--------------------
+char appPath[256];
+
 /*
 Set application's data folder
 */
@@ -68,6 +71,7 @@ void createDirectoryByPath(char* path) {
 	}
 }
 
+//------------------------------Directory tree------------------
 
 /*
 Support function
@@ -127,7 +131,7 @@ Node* a pointer to the tree's root
 */
 Node* stringToTree(char* inputString, char* owner) {
 	queue<Node*> nodeQueue;
-	Node* root = new Node(false, "\\", getOwnerPath(owner), "");
+	Node* root = new Node(false, "\\", NULL, owner);
 	nodeQueue.push(root);
 	vector<char*> folderContent = split(inputString, "/");
 	for (int i = 0; i < folderContent.size(); i++) {
@@ -162,6 +166,53 @@ Node* stringToTree(char* inputString, char* owner) {
 	}
 	return root;
 }
+
+char* treeToString(Node* root) {
+	string result = "/";
+
+	Node* curNode;
+	unsigned short curChildrenLen;
+	queue<unsigned short> childrenLen;
+	queue<Node*> nodeQueue;
+
+	for (int i = 0; i < root->children.size(); i++) {
+		nodeQueue.push(root->children[i]);
+	}
+	childrenLen.push(root->children.size());
+
+	while (nodeQueue.size() > 0 || childrenLen.size() > 0) {
+		curChildrenLen = childrenLen.front();
+		childrenLen.pop();
+
+		for (int j = 0; j < curChildrenLen; j++) {
+			curNode = nodeQueue.front();
+			nodeQueue.pop();
+
+			if (curNode->isFile) {
+				result += "*";
+				result += curNode->name;
+				result += "<";
+				result += curNode->storingName;
+				result += ">|";
+			}
+			else {
+				result += curNode->name;
+				result += "|";
+
+				childrenLen.push(curNode->children.size());
+				for (int i = 0; i < curNode->children.size(); i++) {
+					nodeQueue.push(curNode->children[i]);
+				}
+			}
+		}
+		result += "/";
+	}
+	char* resultChar = new char[result.length() + 1];
+	strcpy(resultChar, result.c_str());
+	return resultChar;
+}
+
+//-------------------------------File-------------------------
 
 /*
 Get file's size

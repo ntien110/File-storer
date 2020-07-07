@@ -23,14 +23,21 @@ void drawResponse(int code, string response) {
 
 void registerView() {
 	char username[256], password[256];
-	registerService("", "");
+	cout << "Username: ";
+	cin >> username;
+	cout << "Password: ";
+	cin >> password;
+
+	Message result = registerService(username, password);
+	drawResponse(result.opcode, result.payload);
+	return;
 };
 
 void loginView(bool &isLoggedIn) {
 	char username[256], password[256];
 
 	if (isLoggedIn) {
-		cout << "You have already logged in. Please logout first.\n\n";
+		drawResponse(0, "Ban da dang nhap, vui long dang xuat!");
 		return;
 	}
 	cout << "Username: ";
@@ -38,15 +45,28 @@ void loginView(bool &isLoggedIn) {
 	cout << "Password: ";
 	cin >> password;
 	Message result = loginService(username, password);
-	if (result.opcode == NULL) {
-		drawResponse(0, "Failed! wrong username or password");
+	if (result.opcode == LOGIN_SUCCESS) isLoggedIn = true;
+	drawResponse(result.opcode, result.payload);
+	return;
+};
+
+void logoutView(bool &isLoggedIn) {
+	if (!isLoggedIn) {
+		drawResponse(0, "Ban chua dang nhap, khong the dang xuat!");
 		return;
-	} else {
+	}
+	Message result = logoutService();
+	if (result.opcode == NOT_FOUND) {
+		drawResponse(0, "Khong the xu li yeu cau, vui long thu lai!");
+		return;
+	}
+	else {
+		if (result.opcode == LOGOUT_SUCCESS) isLoggedIn = false;
 		drawResponse(result.opcode, result.payload);
 		return;
 	}
 };
 
-void logoutView(bool &isLogged) {};
-void uploadFileView(bool &isLogged) {};
-void downloadFileView(bool &isLogged) {};
+void uploadFileView(bool &isLoggedIn) {};
+
+void downloadFileView(bool &isLoggedIn) {};

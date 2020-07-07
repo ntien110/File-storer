@@ -2,11 +2,15 @@
 #include <winsock2.h>
 #include <windows.h>
 #include "Connection.h"
+#include "FileManagement.h"
 #pragma comment(lib, "Ws2_32.lib")
 
 #define PORT 5500
 
 using namespace std;
+
+vector<User> userList;
+map<int, int> userLogged;
 
 int main(int argc, char **argv) {
 	SOCKET listenSocket;
@@ -16,6 +20,10 @@ int main(int argc, char **argv) {
 	DWORD		nEvents = 0;
 	DWORD		index;
 	int ret;
+
+	//init file management
+	setAppPath();
+	createDirectoryByPath(appPath);
 
 	ret = initServer(PORT, listenSocket, socks, events, nEvents);
 	if (ret == 0) return 0;

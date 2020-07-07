@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <iostream>
+#include "winsock2.h"
+#include <vector>
+#include <map>
 
 using namespace std;
 
@@ -27,6 +30,22 @@ struct Message {
 		strcpy_s(payload, sizeof payload, _payload);
 	}
 };
+
+struct User {
+	int userid;
+	char username[256];
+	char password[256];
+	int status;
+	User() {};
+	User(int _userid, char *_username, char *_password, int _status) {
+		userid = _userid;
+		strcpy_s(username, sizeof username, _username);
+		strcpy_s(password, sizeof password, _password);
+		status = _status;
+	}
+};
+extern vector<User> userList;
+extern map<int, int> userLogged;
 
 enum REQUEST_CODE {
 	REGISTER = 100,
