@@ -56,15 +56,9 @@ void logoutView(bool &isLoggedIn) {
 		return;
 	}
 	Message result = logoutService();
-	if (result.opcode == NOT_FOUND) {
-		drawResponse(0, "Khong the xu li yeu cau, vui long thu lai!");
-		return;
-	}
-	else {
-		if (result.opcode == LOGOUT_SUCCESS) isLoggedIn = false;
-		drawResponse(result.opcode, result.payload);
-		return;
-	}
+	if (result.opcode == LOGOUT_SUCCESS) isLoggedIn = false;
+	drawResponse(result.opcode, result.payload);
+	return;
 };
 
 void uploadFileView(bool &isLoggedIn) {};

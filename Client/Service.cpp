@@ -26,11 +26,11 @@ Message loginService(char *username, char *password) {
 };
 
 Message logoutService() {
-	int result;
+	int ret, result;
 	char message[BUFF_SIZE];
 	Message message_resp;
-	messageToBuff(Message(LOGOUT, 6, "logout"), message);
-	result = sendMessage(message, 1 + 2 + 6);
+	ret = messageToBuff(Message(LOGOUT, 6, "logout"), message);
+	result = sendMessage(message, ret);
 	if (result == 0) {
 		return Message();
 	}

@@ -59,11 +59,12 @@ Message buffToMessage(char *buff) {
 }
 
 
-void messageToBuff(Message message, char *buff) {
+int messageToBuff(Message message, char *buff) {
 	//memcpy(buff, &message, sizeof(message));
 	buff[0] = (char)message.opcode;
 	buff[1] = message.length >> 8;
 	buff[2] = message.length & 0xFF;
 	//Convert payload
 	str_cpy(buff + 3, message.payload);
+	return message.length + 3;
 }

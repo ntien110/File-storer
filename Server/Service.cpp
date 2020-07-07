@@ -30,21 +30,21 @@ int registerService(SOCKET socket, Message message_recv) {
 		}
 	}
 
-	userList.push_back(User(userList.size() + 1, username, password, 1));
-
 	char fileName[300]; 
 	int length = 0;
 	str_cpy(fileName, appPath);
 	addToPath(fileName, "account.txt");
-	itoa(userList.size() + 1, new_user, 10);
+	str_cpy(new_user, "\n");
+	//itoa(userList.size() + 1, &new_user[1], 10);
+	itoa(userList.size() + 100, &new_user[1], 10);
 	length = strlen(new_user);
-	str_cpy(&new_user[length + 1], " ");
-	str_cpy(&new_user[length + 2], username);
+	str_cpy(&new_user[length], " ");
+	str_cpy(&new_user[length + 1], username);
 	length = strlen(new_user);
-	str_cpy(&new_user[length + 1], " ");
-	str_cpy(&new_user[length + 2], password);
+	str_cpy(&new_user[length], " ");
+	str_cpy(&new_user[length + 1], password);
 	length = strlen(new_user);
-	str_cpy(&new_user[length + 1], "1");
+	str_cpy(&new_user[length], " 1");
 
 	ret = appendToFile(fileName, new_user, strlen(new_user));
 	if (ret == 0) {
@@ -125,7 +125,7 @@ int logoutService(SOCKET socket, Message message) {
 	int ret;
 	char sendBuff[BUFF_SIZE];
 	if (userLogged[socket] != 0) {
-		userLogged[socket] = 0;
+		userLogged.erase(socket);
 		char * payload_resp = "Dang xuat thanh cong!";
 		ret = messageToBuff(Message(LOGOUT_SUCCESS, strlen(payload_resp) , payload_resp), sendBuff);
 	}
@@ -133,6 +133,7 @@ int logoutService(SOCKET socket, Message message) {
 		char * payload_resp = "Ban chua dang nhap tai khoan nao!";
 		ret = messageToBuff(Message(LOGOUT_FAIL, strlen(payload_resp), payload_resp), sendBuff);
 	}
+	ret = sendMessage(socket, sendBuff, ret);
 	return ret;
 };
 
