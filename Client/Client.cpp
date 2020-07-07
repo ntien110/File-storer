@@ -17,6 +17,8 @@
 using namespace std;
 
 SOCKET CLIENT;
+bool isLoggedIn = false;
+char userid[8];
 
 int main(int argc, char *argv[]) {
 	char chosen;
@@ -25,9 +27,9 @@ int main(int argc, char *argv[]) {
 	if (CLIENT == NULL) return 0;
 	//Step 5: Communicate with server
 	bool isLoggedIn = false;
-	string options[6] = { "Dang ki tai khoan", "Dang nhap", "Tai file len server", "Doc file tu server", "Dang xuat", "Thoat chuong trinh"};
+	string options[5] = { "Dang ki tai khoan", "Dang nhap", "Lam viec voi cay thu muc", "Dang xuat", "Thoat chuong trinh" };
 	do {
-		drawOptions("MENU", options, 6);
+		drawOptions("MENU", options, 5);
 		cout << "Nhap lua chon cua ban: ";
 		cin >> chosen;
 		system("CLS");
@@ -36,18 +38,15 @@ int main(int argc, char *argv[]) {
 			registerView();
 			break;
 		case '2':
-			loginView(isLoggedIn);
+			loginView();
 			break;
 		case '3':
-			uploadFileView(isLoggedIn);
+			workWithFolder();
 			break;
 		case '4':
-			downloadFileView(isLoggedIn);
+			logoutView();
 			break;
 		case '5':
-			logoutView(isLoggedIn);
-			break;
-		case '6':
 		{
 			//Step 6: Close socket and Terminate Winsock
 			closesocket(CLIENT);
@@ -58,6 +57,6 @@ int main(int argc, char *argv[]) {
 			cout << "Lua chon khong phu hop, vui long chon lai!!!!/n";
 			break;
 		};
-	} while (chosen != '6');
+	} while (chosen != '5');
 	return 0;
 }

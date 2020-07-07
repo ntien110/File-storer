@@ -18,7 +18,6 @@ int sendMessage(char *message, int length) {
 		index += ret;
 		length -= ret;
 	}
-	cout << "Da gui: " << message << endl;
 	return index;
 }
 
@@ -37,34 +36,34 @@ int receiveMessage(char *message) {
 		index += ret;
 		length -= ret;
 	}
+	cout << "Da nhan: " << endl;
 	message[index] = '\0';
-	cout << "Da nhan: " << message << endl;
 	return index;
 }
 
-void str_cpy(char *dest, char *src) {
-	while (*src) {
-		*(dest++) = *(src++);
+void str_cpy(char *dest, char *src, int len) {
+	for (int i = 0; i < len; i++) {
+		dest[i] = src[i];
 	}
-	*dest = '\0';
+	//dest[len] = '/0';
 }
 
 Message buffToMessage(char *buff) {
 	Message message;
-	//memcpy(&message, buff, sizeof(message));
 	message.opcode = buff[0];
-	message.length = buff[1] << 8 | buff[2];
-	str_cpy(message.payload, buff + 3);
+	message.length = (uint8_t) buff[1] << 8 | (uint8_t) buff[2];
+	str_cpy(message.payload, buff + 3, message.length);
+	message.payload[message.length] = 0;
 	return message;
 }
 
 
 int messageToBuff(Message message, char *buff) {
-	//memcpy(buff, &message, sizeof(message));
 	buff[0] = (char)message.opcode;
 	buff[1] = message.length >> 8;
 	buff[2] = message.length & 0xFF;
 	//Convert payload
-	str_cpy(buff + 3, message.payload);
+	str_cpy(buff + 3, message.payload, message.length);
+	buff[message.length + 3] = 0;
 	return message.length + 3;
 }

@@ -13,9 +13,8 @@ void drawOptions(string title, string options[], int count);
 void drawResponse(int code, string response);
 
 void registerView();
-void loginView(bool &isLogged);
-void logoutView(bool &isLogged);
-void uploadFileView(bool &isLogged);
-void downloadFileView(bool &isLogged);
+void loginView();
+void logoutView();
+void workWithFolder();
 
 #endif

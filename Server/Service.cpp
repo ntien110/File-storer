@@ -17,14 +17,14 @@ int registerService(SOCKET socket, Message message_recv) {
 		}
 		username[i] = message_recv.payload[i];
 	}
-	str_cpy(password, &message_recv.payload[i + 1]);
+	strcpy(password, &message_recv.payload[i + 1]);
 
 	readUserFromFile();
 	for (i = 0; i < userList.size(); i++) {
 		if (strcmp(username, userList[i].username) == 0) {
 			status = false;
-			payload_resp = "Ten tai khoan da ton tai, vui long dang ki lai";
-			ret = messageToBuff(Message(REGISTER_FAIL, strlen(payload_resp), payload_resp), sendBuff);
+			payload_resp = "Ten tai khoan da ton tai, vui long dang ki lai!";
+			ret = messageToBuff(Message(FAIL, strlen(payload_resp), payload_resp), sendBuff);
 			ret = sendMessage(socket, sendBuff, ret);
 			return ret;
 		}
@@ -32,28 +32,35 @@ int registerService(SOCKET socket, Message message_recv) {
 
 	char fileName[300]; 
 	int length = 0;
-	str_cpy(fileName, appPath);
+	strcpy(fileName, appPath);
 	addToPath(fileName, "account.txt");
-	str_cpy(new_user, "\n");
-	//itoa(userList.size() + 1, &new_user[1], 10);
-	itoa(userList.size() + 100, &new_user[1], 10);
+	strcpy(new_user, "\n");
+	itoa(userList.size() + 1, &new_user[1], 10);
 	length = strlen(new_user);
-	str_cpy(&new_user[length], " ");
-	str_cpy(&new_user[length + 1], username);
+	strcpy(&new_user[length], " ");
+	strcpy(&new_user[length + 1], username);
 	length = strlen(new_user);
-	str_cpy(&new_user[length], " ");
-	str_cpy(&new_user[length + 1], password);
+	strcpy(&new_user[length], " ");
+	strcpy(&new_user[length + 1], password);
 	length = strlen(new_user);
-	str_cpy(&new_user[length], " 1");
+	strcpy(&new_user[length], " 1");
 
 	ret = appendToFile(fileName, new_user, strlen(new_user));
 	if (ret == 0) {
 		payload_resp = "Dang ki tai khoan thanh cong!";
-		ret = messageToBuff(Message(REGISTER_SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
+		char file_name[BUFF_SIZE], userid[8];
+		itoa(userList.size() + 1, userid, 10);
+		strcpy(file_name, appPath);
+		addToPath(file_name, userid);
+		createDirectoryByPath(file_name);
+		addToPath(file_name, "metaData");
+		char *meta = "/";
+		writeToFile(file_name, meta, 1);
+		ret = messageToBuff(Message(SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
 	}
 	else {
 		payload_resp = "Dang ki tai khoan that bai, vui long thu lai!";
-		ret = messageToBuff(Message(REGISTER_FAIL, strlen(payload_resp), payload_resp), sendBuff);
+		ret = messageToBuff(Message(FAIL, strlen(payload_resp), payload_resp), sendBuff);
 	}
 	ret = sendMessage(socket, sendBuff, ret);
 	return ret;
@@ -64,7 +71,7 @@ int loginService(SOCKET socket, Message message_recv) {
 	char username[256], password[256], sendBuff[BUFF_SIZE];
 	char *payload_resp;
 	int i, ret;
-
+	//copy data from message's payload to usernaem, password ( separate by space(' '))
 	for (i = 0; i < message_recv.length; i++) {
 		if (message_recv.payload[i] == ' ') {
 			username[i] = 0;
@@ -72,8 +79,8 @@ int loginService(SOCKET socket, Message message_recv) {
 		}
 		username[i] = message_recv.payload[i];
 	}
-	str_cpy(password, &message_recv.payload[i + 1]);
-
+	strcpy(password, &message_recv.payload[i + 1]);
+	//logic login service: read file -> compare -> response
 	readUserFromFile();
 	for (i = 0; i < userList.size(); i++) {
 		if (strcmp(username, userList[i].username) == 0) {
@@ -96,16 +103,19 @@ int loginService(SOCKET socket, Message message_recv) {
 				else {
 					payload_resp = "Dang nhap thanh cong!";
 					userLogged.insert(std::pair<int, int>(socket, userList[i].userid));
+					userLogInAttemp.erase(socket);
 				}
 			}
 			else {
-				payload_resp = "Mat khau cua ban khong dung!";
 				// wrong password
-				/*user[i].failedAttemp++;
-				if (database[i].failedAttemp == 3) {
-					database[i].status = 1;
-					return 2;
-				}*/
+				if (userLogInAttemp.find(socket) == userLogInAttemp.end())
+					userLogInAttemp.insert(std::pair<int, int>(socket, 1));
+				else if (userLogInAttemp[socket] == 2) {
+					userList[i].status = 0;
+					writeUserToFile();
+				} else
+					userLogInAttemp[socket] = userLogInAttemp[socket] + 1;
+				payload_resp = "Mat khau cua ban khong dung!";
 			}
 			break;
 		}
@@ -114,9 +124,9 @@ int loginService(SOCKET socket, Message message_recv) {
 	}
 
 	if (strcmp(payload_resp, "Dang nhap thanh cong!") == 0)
-		ret = messageToBuff(Message(LOGIN_SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
+		ret = messageToBuff(Message(SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
 	else
-		ret = messageToBuff(Message(LOGIN_FAIL, strlen(payload_resp), payload_resp), sendBuff);
+		ret = messageToBuff(Message(FAIL, strlen(payload_resp), payload_resp), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);
 	return ret;
 };
@@ -127,20 +137,51 @@ int logoutService(SOCKET socket, Message message) {
 	if (userLogged[socket] != 0) {
 		userLogged.erase(socket);
 		char * payload_resp = "Dang xuat thanh cong!";
-		ret = messageToBuff(Message(LOGOUT_SUCCESS, strlen(payload_resp) , payload_resp), sendBuff);
+		ret = messageToBuff(Message(SUCCESS, strlen(payload_resp) , payload_resp), sendBuff);
 	}
 	else {
 		char * payload_resp = "Ban chua dang nhap tai khoan nao!";
-		ret = messageToBuff(Message(LOGOUT_FAIL, strlen(payload_resp), payload_resp), sendBuff);
+		ret = messageToBuff(Message(FAIL, strlen(payload_resp), payload_resp), sendBuff);
 	}
 	ret = sendMessage(socket, sendBuff, ret);
 	return ret;
 };
 
 int uploadFileService(SOCKET socket, Message message) {
+
 	return 0;
 };
 
 int downloadFileService(SOCKET socket, Message message) {
 	return 0;
 };
+
+int tranferMetaSerive(SOCKET socket, Message message) {
+	char userid[8], file_name[BUFF_SIZE] = "";
+	itoa(userLogged[socket], userid, 10);
+	strcpy(file_name, appPath);
+	addToPath(file_name, userid);
+	addToPath(file_name, "metaData");
+	cout << file_name << endl;
+	int ret = tranferFile(socket, file_name);
+	return ret;
+}
+
+int tranferFile(SOCKET socket, char *file_name) {
+	char sendBuff[BUFF_SIZE];
+	char data[BUFF_SIZE];
+	int ret = 0, index = 0;
+	do {
+		ret = readFile(file_name, index , 1024, data);
+		data[ret] = 0;
+		if (ret == -1) return -1;
+		if (ret == 0) break;
+		index += ret;
+		int r = messageToBuff(Message(TRANFERING, ret, data), sendBuff);
+		r = sendMessage(socket, sendBuff, r);
+		if (r == -1) return -1;
+	} while (ret != 0);
+	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
+	ret = sendMessage(socket, sendBuff, ret);
+	return index;
+}

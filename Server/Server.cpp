@@ -11,6 +11,7 @@ using namespace std;
 
 vector<User> userList;
 map<int, int> userLogged;
+map<int, int> userLogInAttemp;
 
 int main(int argc, char **argv) {
 	SOCKET listenSocket;

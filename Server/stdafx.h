@@ -18,16 +18,21 @@ using namespace std;
 
 #define BUFF_SIZE 2048
 #define BUFF_FILE 8192
+#define PAYLOAD_SIZE BUFF_SIZE - 3
 
 struct Message {
 	uint8_t opcode;
 	uint16_t length;
-	char payload[BUFF_SIZE];
+	char payload[PAYLOAD_SIZE];
 	Message() {};
 	Message(uint8_t _opcode, uint16_t _length, char *_payload) {
+		cout << "dfdsf" << _length << endl;
 		opcode = _opcode;
 		length = _length;
-		strcpy_s(payload, sizeof payload, _payload);
+		for (int i = 0; i < _length; i++) {
+			payload[i] = _payload[i];
+		}
+		//str_cpy(payload, _payload, _length);
 	}
 };
 
@@ -46,31 +51,27 @@ struct User {
 };
 extern vector<User> userList;
 extern map<int, int> userLogged;
+extern map<int, int> userLogInAttemp;
 
 enum REQUEST_CODE {
 	REGISTER = 100,
 	LOGIN = 110,
 	LOGOUT = 120,
-	UPLOAD_FILE = 130,
-	DOWNLOAD_FILE = 140
+	GET_META_FILE = 130,
+	UPLOAD_FILE = 140,
+	DOWNLOAD_FILE = 150,
+	UPLOAD_FOLDER = 160,
+	DOWNLOAD_FOLDER = 170,
+	DELETE_DATA = 180
 };
 
 enum RESPONSE_CODE {
-	REGISTER_SUCCESS = 200,
-	REGISTER_FAIL = 204,
+	SUCCESS = 200,
 
-	LOGIN_SUCCESS = 210,
-	LOGIN_FAIL = 214,
+	FAIL = 204,
 
-	LOGOUT_SUCCESS = 220,
-	LOGOUT_FAIL = 224,
-
-	UPLOAD_FILE_SUCCESS = 230,
-	UPLOAD_FILE_FAIL = 234,
-
-	DOWNLOAD_FILE_SUCCESS = 240,
-	DOWNLOAD_FILE_FAIL = 244,
-
+	TRANFER_DONE = 251,
+	TRANFERING = 252,
 	NOT_FOUND = 000,
 };
 // TODO: reference additional headers your program requires here

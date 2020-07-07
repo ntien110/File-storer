@@ -8,7 +8,11 @@
 Message loginService(char *username, char *password);
 Message logoutService();
 Message registerService(char *username, char *password);
-Message uploadFileService(char *fileName);
+Message getMetaFolderService();
+Message uploadFileService();
 Message downloadFileService(char *fileName);
+Message uploadFolderService();
+Message downloadFolderService(char *fileName);
+Message deleteFileService(char *pathTrace);
 
 #endif
