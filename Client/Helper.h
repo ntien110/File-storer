@@ -10,6 +10,6 @@ int sendMessage(char *message, int length);
 int receiveMessage(char *message);
 void str_cpy(char *dest, char *src);
 Message buffToMessage(char *buff);
-void messageToBuff(Message message, char *buff);
+int messageToBuff(Message message, char *buff);
 
 #endif
