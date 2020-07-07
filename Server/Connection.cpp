@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Helper.h"
 #include "Connection.h"
+#include "Service.h"
 
 int initServer(int port, SOCKET &listenSocket, SOCKET *socks, WSAEVENT *events, DWORD &nEvents) {
 	WSADATA wsaData;
@@ -63,7 +64,6 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 	}
 	
 	char recvBuff[BUFF_SIZE];
-	char sendBuff[BUFF_SIZE];
 	int ret = receiveMessage(socket, recvBuff);
 
 	//Release socket and event if an error occurs
@@ -71,10 +71,36 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 		closesocket(socket);
 		return -1;
 	}
-	else {		
+	else {
 		//get message -> resolve message -> create message response -> send response//echo to client
-		memcpy(sendBuff, recvBuff, ret);
+		/*memcpy(sendBuff, recvBuff, ret);
 		sendMessage(socket, sendBuff, ret);
+		return ret;*/
+		Message message = buffToMessage(recvBuff);
+		switch (message.opcode) {
+		case REGISTER:
+			ret = registerService(socket, message);
+			break;
+		case LOGIN:
+			ret = loginService(socket, message);
+			break;
+		case LOGOUT:
+			ret = logoutService(socket, message);
+			break;
+		case UPLOAD_FILE:
+			ret = uploadFileService(socket, message);
+			break;
+		case DOWNLOAD_FILE:
+			ret = downloadFileService(socket, message);
+			break;
+		default:
+			cout << "Request is not found!!!" << endl;
+			char nf_mess[BUFF_SIZE] = "Yeu cau khong hop le!";
+			char send_buff[BUFF_SIZE];
+			messageToBuff(Message(NOT_FOUND, strlen(nf_mess), nf_mess), send_buff);
+			sendMessage(socket, send_buff, ret);
+			break;
+		}
 		return ret;
 	}
 }

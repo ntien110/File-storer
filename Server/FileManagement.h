@@ -24,9 +24,13 @@ char* createDirectory(char* path, char* name);
 
 void createDirectoryByPath(char* path);
 
+char* getOwnerPath(char* owner);
+
 void addToPath(char* path, char* name);
 
 Node* stringToTree(char* inputString, char* owner);
+
+char* treeToString(Node* root);
 
 int deleteFile(char* fileName);
 
