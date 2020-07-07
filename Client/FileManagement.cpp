@@ -203,6 +203,42 @@ char* treeToString(Node* root) {
 	return resultChar;
 }
 
+Node* goToNodeWithName(char* name, Node* root) {
+	if (root->isFile) {
+		return NULL;
+	}
+	for (int i = 0; i < root->children.size(); i++) {
+		if (strcmp(name, root->children[i]->name) == 0) {
+			return root->children[i];
+		}
+	}
+	return NULL;
+}
+
+/*
+Create a new Node as child of the given Node
+
+input: ....
+output:
+-1: given node is a file, cannot have child,
+-2: file/folder name existed,
+else: ok
+*/
+int addNewNode(Node* parent, bool _isFile, char* _name, char* _storingName, char* _owner) {
+	if (parent->isFile) {
+		return -1;
+	}
+	for (int i = 0; i < parent->children.size(); i++) {
+		if (strcmp(_name, parent->children[i]->name) == 0) {
+			return -2;
+		}
+	}
+
+	Node* newNode = new Node(_isFile, _name, _storingName, _owner);
+	parent->children.push_back(newNode);
+	return 0;
+}
+
 //----------------------------File------------------------------
 
 /*

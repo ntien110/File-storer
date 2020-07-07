@@ -42,6 +42,10 @@ int readFile(char* fileName, int start, int buffLen, char* buff);
 
 int getFileLength(char* fileName);
 
+Node* goToNodeWithName(char* name, Node* root);
+
+int addNewNode(Node* parent, bool _isFile, char* _name, char* _storingName, char* _owner);
+
 struct Node {
 	bool isFile;
 	char* name;
