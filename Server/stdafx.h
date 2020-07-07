@@ -11,6 +11,8 @@
 #include <tchar.h>
 #include <iostream>
 
+using namespace std;
+
 #define BUFF_SIZE 2048
 #define BUFF_FILE 8192
 
@@ -49,5 +51,7 @@ enum RESPONSE_CODE {
 
 	DOWNLOAD_FILE_SUCCESS = 240,
 	DOWNLOAD_FILE_FAIL = 244,
+
+	NOT_FOUND = 000,
 };
 // TODO: reference additional headers your program requires here

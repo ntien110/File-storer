@@ -50,12 +50,19 @@ void str_cpy(char *dest, char *src) {
 }
 
 Message buffToMessage(char *buff) {
-	Message convertedMessage;
-	memcpy(&convertedMessage, buff, sizeof(convertedMessage));
-	return convertedMessage;
+	Message message;
+	//memcpy(&message, buff, sizeof(message));
+	message.opcode = buff[0];
+	message.length = buff[1] << 8 | buff[2];
+	str_cpy(message.payload, buff + 3);
+	return message;
 }
 
 
 void messageToBuff(Message message, char *buff) {
-	memcpy(buff, &message, sizeof(message));
+	buff[0] = (char)message.opcode;
+	buff[1] = message.length >> 8;
+	buff[2] = message.length & 0xFF;
+	//Convert payload
+	str_cpy(buff + 3, message.payload);
 }

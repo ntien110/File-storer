@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
 	SOCKET listenSocket;
 	SOCKET		socks[WSA_MAXIMUM_WAIT_EVENTS];
 	WSAEVENT	events[WSA_MAXIMUM_WAIT_EVENTS];
+	bool		userLogged[WSA_MAXIMUM_WAIT_EVENTS];
 	DWORD		nEvents = 0;
 	DWORD		index;
 	int ret;
