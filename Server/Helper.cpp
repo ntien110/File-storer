@@ -16,7 +16,6 @@ int sendMessage(SOCKET client, char *message, int length) {
 	_itoa_s(length, len, 10);
 	ret = send(client, len, BUFF_SIZE, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
-	cout << "Do dai: " << length << endl;
 	while (length > 0) {
 		ret = send(client, &message[index], length, 0);
 		if (ret == SOCKET_ERROR) continue;
@@ -33,7 +32,6 @@ int receiveMessage(SOCKET client, char *message) {
 	ret = recv(client, len, BUFF_SIZE, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	int length = atoi(len);
-	cout << "da nhan Do dai: " << length << endl;
 	while (length > 0) {
 		ret = recv(client, &message[index], length, 0);
 		if (ret == SOCKET_ERROR) {
@@ -109,18 +107,8 @@ void writeUserToFile() {
 
 char* getTimestamp()
 {
-	time_t rawtime;
-	struct tm* timeinfo;
-
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	char* time = asctime(timeinfo);
-
-	char* newLine = strstr(time, "\n");
-	if (newLine)
-	{
-		*newLine = 0;
-	}
-
-	return time;
+	char* re= new char[14];
+	unsigned long int sec = time(NULL);
+	itoa(sec, re, 10);
+	return re;
 }

@@ -46,6 +46,10 @@ Node* goToNodeWithName(char* name, Node* root);
 
 int addNewNode(Node* parent, bool _isFile, char* _name, char* _storingName, char* _owner);
 
+vector<char*> split(char* string, char* delimiter);
+
+void updateMetadata(Node* root, char* userId);
+
 struct Node {
 	bool isFile;
 	char* name;
@@ -61,10 +65,9 @@ struct Node {
 	}
 
 	char* getPath() {
-		char path[1024];
-		strcat_s(path, appPath);
+		char* path=new char[1024];
+		strcpy(path, appPath);
 		addToPath(path, owner);
-		addToPath(path, "data");
 		addToPath(path, storingName);
 		return path;
 	}

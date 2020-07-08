@@ -10,7 +10,6 @@
 stack<Node*> folderStack;
 vector<int> pathStack;
 Node* curNode;
-vector<int> pathStack;
 
 void resetDirectoryTree() {
 	char* metadata = new char[8296];
@@ -33,44 +32,16 @@ void resetDirectoryTree() {
 
 char* getCurTracePath() {
 	char* tracePath = new char[64];
-	strcpy(tracePath, "");
+	strcpy(tracePath, ",");
 	char temp[3];
 	for (int i = 0; i < pathStack.size(); i++) {
 		itoa(pathStack[i], temp, 10);
 		strcat(tracePath, temp);
+		strcat(tracePath, ",");
 	}
 	return tracePath;
 }
 
-void resetDirectoryTree() {
-	char* metadata = new char[8296];
-	int result = getMetadataService(metadata);
-	if (result <= 0) {
-		cout << "Error on get user directory" << endl;
-		metadata = "//";
-	}
-	curNode = stringToTree(metadata, userid);
-
-	while (folderStack.size() > 0) {
-		folderStack.pop();
-	}
-	folderStack.push(curNode);
-
-	while (pathStack.size() > 0) {
-		pathStack.pop_back();
-	}
-}
-
-char* getCurTracePath() {
-	char* tracePath = new char[64];
-	strcpy(tracePath, "");
-	char temp[3];
-	for (int i = 0; i < pathStack.size(); i++) {
-		itoa(pathStack[i], temp, 10);
-		strcat(tracePath, temp);
-	}
-	return tracePath;
-}
 
 void drawOptions(string title, string options[], int count) {
 	cout << "\t-------------------------------\t" << setw(10) << left << title << "---------------------------------\n";

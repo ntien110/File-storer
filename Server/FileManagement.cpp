@@ -37,9 +37,10 @@ void addToPath(char* path, char* name) {
 Get user's directory path
 */
 char* getOwnerPath(char* owner) {
-	char ownerPath[256] = "\0";
-	strcat(ownerPath, "\\");
-	strcat(ownerPath, owner);
+	char *ownerPath= new char[256];
+	ownerPath[0] = '\0';
+	strcat(ownerPath, appPath);
+	addToPath(ownerPath, owner);
 	return ownerPath;
 }
 
@@ -257,6 +258,12 @@ int addNewNode(Node* parent, bool _isFile, char* _name, char* _storingName, char
 	return 0;
 }
 
+void updateMetadata(Node* root, char* userId) {
+	char* path = getOwnerPath(userId);
+	addToPath(path, "metaData");
+	writeToFile(path, treeToString(root), strlen(treeToString(root)));
+}
+
 //-------------------------------File-------------------------
 
 /*
@@ -389,13 +396,3 @@ int deleteFile(char* fileName) {
 	else
 		return 0;
 }
-
-Node* navigateInTree(Node* root, char* tracePath) {
-	vector<char*> indexes = split(tracePath, ",");
-	Node* curNode = root;
-	for (int i = 0; i < indexes.size(); i++) {
-		curNode = curNode->children[atoi(indexes[i])];
-	}
-	return curNode;
-}
-

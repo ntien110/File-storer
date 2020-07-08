@@ -3,6 +3,7 @@
 #include "Service.h"
 #include "string.h"
 #include "FileManagement.h"
+#include <conio.h>
 
 #pragma warning(disable:4996)
 
@@ -86,7 +87,7 @@ Message registerService(char *username, char *password) {
 
 Message uploadFileService(char *tracePath, char *fileName) {
 	int ret, result, index = 0;
-	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE], data[BUFF_SIZE];
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE];
 	Message message_resp;
 	//create and send request upload with payload is destination file name
 	str_cpy(data, tracePath, strlen(tracePath));
@@ -105,7 +106,6 @@ Message uploadFileService(char *tracePath, char *fileName) {
 	}
 
 	do {
-		cout << index << endl;
 		ret = readFile(fileName, index, 1024, data);
 		data[ret] = 0;
 		if (ret == -1) return Message();
@@ -167,6 +167,5 @@ int getMetadataService(char *metaData) {
 		index = index + message_resp.length;
 	} while (true);
 	metaData[index] = '\0';
-	cout << metaData << endl;
 	return index;
 }

@@ -151,19 +151,49 @@ int uploadFileService(SOCKET socket, Message message) {
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
 	Message message_resp;
-	cout << "file name: " << message.payload << endl;
+	// payload parse
+	message.payload[message.length] = '\n';
+	message.payload[message.length+1] = '\0';
+
+	vector<char*> components = split(message.payload, "\n");
+	vector<char*> tracePath = split(components[0], ",");
+	strcat(components[1], "\\");
+	vector<char*> filePath = split(components[1], "\\");
+
+	// get directory
+	char file_name[BUFF_SIZE] = "", metadata[10000];
+	char*  userid = new char[8];
+	itoa(userLogged[socket], userid, 10);
+	strcpy(file_name, appPath);
+	addToPath(file_name, userid);
+	addToPath(file_name, "metaData");
+
+	result = readFile(file_name, 0, 10000, metadata);
+	if (result < 0) {
+		return -1;
+	}
+	Node* directoryTree = stringToTree(metadata, userid);
+
+	// process update tree
+	Node* curNode= directoryTree;
+	for (int i = 0; i < tracePath.size(); i++) {
+		curNode = curNode->children[i];
+	}
+	addNewNode(curNode, true, filePath[filePath.size() - 1], getTimestamp(), userid);
+	curNode = curNode->children[curNode->children.size() - 1];
 	do {
 		result = receiveMessage(socket, recvBuff);
 		while (result < 0) {
 			result = receiveMessage(socket, recvBuff);
-			cout << result << endl;
 		}
 		message_resp = buffToMessage(recvBuff);
-		cout << "Noi dung: " << message_resp.payload << endl;
 		if (message_resp.opcode == TRANFER_DONE) break;
 		//append message.payload to file
-		appendToFile(message.payload, message_resp.payload, message_resp.length);
+		appendToFile(curNode->getPath(), message_resp.payload, message_resp.length);
 	} while (true);
+
+	updateMetadata(directoryTree, userid);
+
 	char * payload_resp = "Da tai file len thanh cong!";
 	ret = messageToBuff(Message(SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);
@@ -180,7 +210,6 @@ int tranferMetaService(SOCKET socket) {
 	strcpy(file_name, appPath);
 	addToPath(file_name, userid);
 	addToPath(file_name, "metaData");
-	cout << file_name << endl;
 	int ret = tranferFile(socket, file_name);
 	return ret;
 }
