@@ -85,6 +85,7 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 			ret = logoutService(socket, message);
 			break;
 		case GET_META_FILE:
+			ret = tranferMetaService(socket);
 			break;
 		case UPLOAD_FILE:
 			ret = uploadFileService(socket, message);

@@ -130,3 +130,26 @@ Message downloadFileService(char *file_name) {
 		printf("%s\n", response);
 	};
 }
+
+int getMetadataService(char *metaData) {
+	int ret, result, index = 0;
+	char message[BUFF_SIZE];
+	Message message_resp;
+	ret = messageToBuff(Message(GET_META_FILE, 0, ""), message);
+	result = sendMessage(message, ret);
+	if (result == 0) {
+		return 0;
+	}
+	do {
+		result = receiveMessage(message);
+		if (result < 0) {
+			return result;
+		}
+		message_resp = buffToMessage(message);
+		if (message_resp.opcode == TRANFER_DONE) break;
+		str_cpy(metaData + index, message_resp.payload, message_resp.length);
+		index = index + message_resp.length;
+	} while (true);
+	metaData[index] = '\0';
+	return index;
+}

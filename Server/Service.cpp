@@ -156,7 +156,7 @@ int downloadFileService(SOCKET socket, Message message) {
 	return 0;
 };
 
-int tranferMetaSerive(SOCKET socket, Message message) {
+int tranferMetaService(SOCKET socket) {
 	char userid[8], file_name[BUFF_SIZE] = "";
 	itoa(userLogged[socket], userid, 10);
 	strcpy(file_name, appPath);

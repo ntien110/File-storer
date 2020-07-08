@@ -8,8 +8,7 @@
 #pragma warning(disable:4996)
 
 stack<Node*> folderStack;
-char meta[] = "/F1|F2|*f1<001>|/*f2<002>|*f3<003>|//";
-Node* curNode = stringToTree(meta, "5");
+Node* curNode;
 
 void drawOptions(string title, string options[], int count) {
 	cout << "\t-------------------------------\t" << setw(10) << left << title << "---------------------------------\n";
@@ -222,6 +221,14 @@ void workWithFolder() {
 		drawResponse(0, "Ban chua dang nhap, khong the thao tac voi thu muc!");
 		return;
 	}
+
+	char* metadata = new char[8296];
+	int result = getMetadataService(metadata);
+	if (result <= 0) {
+		cout << "Error on get user directory" << endl;
+		metadata = "//";
+	}
+	curNode = stringToTree(metadata, userid);
 
 	string options[8] = {
 		"Di den",

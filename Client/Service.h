@@ -8,7 +8,7 @@
 Message loginService(char *username, char *password);
 Message logoutService();
 Message registerService(char *username, char *password);
-Message getMetaFolderService();
+int getMetadataService(char *metaData);
 Message uploadFileService();
 Message downloadFileService(char *fileName);
 Message uploadFolderService();
