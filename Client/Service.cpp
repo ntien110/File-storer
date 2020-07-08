@@ -2,6 +2,7 @@
 #include "Helper.h"
 #include "Service.h"
 #include "string.h"
+#include "FileManagement.h"
 
 #pragma warning(disable:4996)
 
@@ -83,29 +84,44 @@ Message registerService(char *username, char *password) {
 	return message_resp;
 };
 
-Message uploadFileService() {
+Message uploadFileService(char *tracePath, char *fileName) {
 	int ret, result, index = 0;
-	char message[BUFF_SIZE];
-	char metaData[8192];
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE], data[BUFF_SIZE];
 	Message message_resp;
-	ret = messageToBuff(Message(UPLOAD_FILE, 6, "upload"), message);
-	result = sendMessage(message, ret);
+	//create and send request upload with payload is destination file name
+	str_cpy(data, tracePath, strlen(tracePath));
+	str_cpy(data + strlen(tracePath), "\n", 1);
+	str_cpy(data+strlen(tracePath)+1, fileName, strlen(fileName));
+	data[strlen(tracePath) + strlen(fileName)+1] = '\0';
+
+	if (getFileLength(fileName) < 0) {
+		return Message(204, 18 ,"File khong ton tai");
+	}
+
+	ret = messageToBuff(Message(UPLOAD_FILE, strlen(data), data), sendBuff);
+	result = sendMessage(sendBuff, ret);
 	if (result == 0) {
 		return Message();
 	}
+
 	do {
-		result = receiveMessage(message);
-		if (result < 0) {
-			return Message();
-		}
-		message_resp = buffToMessage(message);
-		cout << "Payload: " << message_resp.payload << endl;
-		if (message_resp.opcode == TRANFER_DONE) break;
-		str_cpy(metaData+index, message_resp.payload, message_resp.length);
 		cout << index << endl;
-		index = index + message_resp.length;
-	} while (true);
-	cout << "Meta: " << metaData << endl;
+		ret = readFile(fileName, index, 1024, data);
+		data[ret] = 0;
+		if (ret == -1) return Message();
+		if (ret == 0) break;
+		index += ret;
+		int r = messageToBuff(Message(TRANFERING, ret, data), sendBuff);
+		r = sendMessage( sendBuff, r);
+		if (r == -1) return Message();
+	} while (ret != 0);
+	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
+	ret = sendMessage(sendBuff, ret);
+	result = receiveMessage(recvBuff);
+	if (result < 0) {
+		return Message();
+	}
+	message_resp = buffToMessage(recvBuff);
 	return message_resp;
 }
 
@@ -151,5 +167,6 @@ int getMetadataService(char *metaData) {
 		index = index + message_resp.length;
 	} while (true);
 	metaData[index] = '\0';
+	cout << metaData << endl;
 	return index;
 }

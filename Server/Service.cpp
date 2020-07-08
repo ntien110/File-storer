@@ -148,7 +148,25 @@ int logoutService(SOCKET socket, Message message) {
 };
 
 int uploadFileService(SOCKET socket, Message message) {
-
+	int ret, result, index = 0;
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
+	Message message_resp;
+	cout << "file name: " << message.payload << endl;
+	do {
+		result = receiveMessage(socket, recvBuff);
+		while (result < 0) {
+			result = receiveMessage(socket, recvBuff);
+			cout << result << endl;
+		}
+		message_resp = buffToMessage(recvBuff);
+		cout << "Noi dung: " << message_resp.payload << endl;
+		if (message_resp.opcode == TRANFER_DONE) break;
+		//append message.payload to file
+		appendToFile(message.payload, message_resp.payload, message_resp.length);
+	} while (true);
+	char * payload_resp = "Da tai file len thanh cong!";
+	ret = messageToBuff(Message(SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
+	ret = sendMessage(socket, sendBuff, ret);
 	return 0;
 };
 
