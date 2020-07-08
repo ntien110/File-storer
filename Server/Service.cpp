@@ -177,7 +177,7 @@ int uploadFileService(SOCKET socket, Message message) {
 	// process update tree
 	Node* curNode= directoryTree;
 	for (int i = 0; i < tracePath.size(); i++) {
-		curNode = curNode->children[i];
+		curNode = curNode->children[atoi(tracePath[i])];
 	}
 	addNewNode(curNode, true, filePath[filePath.size() - 1], getTimestamp(), userid);
 	curNode = curNode->children[curNode->children.size() - 1];
@@ -201,7 +201,54 @@ int uploadFileService(SOCKET socket, Message message) {
 };
 
 int downloadFileService(SOCKET socket, Message message) {
-	return 0;
+	int ret, result, index = 0;
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE], fileName[BUFF_SIZE]="";
+	Message message_resp;
+	//xu li gan file name
+	cout << message.payload << endl;
+	vector<char*> tracePath = split(message.payload, ",");
+	
+	// get directory
+	char metadata[10000];
+	char*  userid = new char[8];
+	itoa(userLogged[socket], userid, 10);
+	strcpy(fileName, appPath);
+	addToPath(fileName, userid);
+	addToPath(fileName, "metaData");
+
+	result = readFile(fileName, 0, 10000, metadata);
+	if (result < 0) {
+		return -1;
+	}
+	Node* directoryTree = stringToTree(metadata, userid);
+	Node* curNode = directoryTree;
+	for (int i = 0; i < tracePath.size(); i++) {
+		curNode = curNode->children[atoi(tracePath[i])];
+	}
+
+	cout << curNode->name << endl;
+	cout << curNode->getPath() << endl;
+	//create and send request upload with payload is destination file name
+	do {
+		ret = readFile(curNode->getPath(), index, 1024, data);
+		data[ret] = 0;
+		if (ret == -1) return SOCKET_ERROR;
+		if (ret == 0) break;
+		index += ret;
+		int r = messageToBuff(Message(TRANFERING, ret, data), sendBuff);
+		r = sendMessage(socket, sendBuff, r);
+		if (r == -1) {
+			/*return SOCKET_ERROR;*/
+			index -= ret;
+			continue;
+		}
+	} while (ret != 0);
+	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
+	ret = sendMessage(socket, sendBuff, ret);
+	if (result < 0) {
+		return SOCKET_ERROR;
+	}
+	return ret;
 };
 
 int tranferMetaService(SOCKET socket) {

@@ -10,9 +10,9 @@ Message logoutService();
 Message registerService(char *username, char *password);
 int getMetadataService(char *metaData);
 Message uploadFileService(char *pathDir, char *fileName);
-Message downloadFileService(char *fileName);
+Message downloadFileService(char* tracePath, char* saveLocation);
 Message uploadFolderService();
-Message downloadFolderService(char *fileName);
+Message downloadFolderService(char* tracePath, char* saveLocation);
 Message deleteFileService(char *pathTrace);
 
 #endif

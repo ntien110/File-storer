@@ -4,6 +4,7 @@
 #include "Helper.h"
 #include "FileManagement.h"
 #include <stack>
+#include <conio.h>
 
 #pragma warning(disable:4996)
 
@@ -188,19 +189,21 @@ Node* selectView(bool folderOnly) {
 void goToView() {
 	folderStack.push(curNode);
 	curNode = selectView(true);
-	
+
 	if (!curNode) {
 		curNode = folderStack.top();
 		folderStack.pop();
 	}
 	else {
 		for (int i = 0; i < folderStack.top()->children.size(); i++) {
+			cout << folderStack.top()->children[i]->name << ":" << curNode->name << endl;
 			if (strcmp(folderStack.top()->children[i]->name, curNode->name) == 0) {
 				pathStack.push_back(i);
 				break;
 			}
 		}
 	}
+	_getch();
 }
 
 void createDirectoryView() {
@@ -229,14 +232,9 @@ void uploadFileView() {
 	char path[256];
 	cout << "Nhap ten file muon tai: ";
 	cin >> path;
-	Message result = uploadFileService( getCurTracePath() , path);
+	Message result = uploadFileService(getCurTracePath(), path);
 	if (result.opcode == NULL) {
 		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
-	}
-	else if (result.opcode == SUCCESS) {
-		isLoggedIn = false; //set status of current client is logged
-		strcpy(userid, ""); //set userid of current client
-		strcpy(result.payload, "Dang xuat thanh cong!");
 	}
 	drawResponse(result.opcode, result.payload);
 	return;
@@ -251,13 +249,38 @@ void downloadView() {
 	if (!selectedNode) {
 		return;
 	}
+	
+	folderStack.push(curNode);
 
-	char path[256];
+	for (int i = 0; i < folderStack.top()->children.size(); i++) {
+		//cout << folderStack.top()->children[i]->name << ":" << selectedNode->name << endl;
+		if (strcmp(folderStack.top()->children[i]->name, selectedNode->name) == 0) {
+			pathStack.push_back(i);
+			cout << "ok" << endl;
+			break;
+		}
+	}
+	cout << selectedNode->name << endl;
+	cout << getCurTracePath() << endl;
+
+
+	char saveLocation[256];
 	cout << "Path to save file/folder: ";
-	cin >> path;
+	cin >> saveLocation;
 
-	//Message result = loginService(username, password);
-	drawResponse(111, path);//result.opcode, result.payload);
+	Message result;
+	if (selectedNode->isFile) {
+		result = downloadFileService(getCurTracePath(), saveLocation);
+	}
+	else {
+		result = downloadFolderService(getCurTracePath(), saveLocation);
+	}
+
+	if (result.opcode == NULL) {
+		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
+	}
+	drawResponse(result.opcode, result.payload);
+	resetDirectoryTree();
 	return;
 }
 

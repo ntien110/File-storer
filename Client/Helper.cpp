@@ -38,7 +38,7 @@ int receiveMessage(char *message) {
 		index += ret;
 		length -= ret;
 	}
-	cout << "Da nhan: " << endl;
+	cout << "Da nhan: "<< index << endl;
 	message[index] = '\0';
 	return index;
 }

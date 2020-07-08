@@ -125,26 +125,38 @@ Message uploadFileService(char *tracePath, char *fileName) {
 	return message_resp;
 }
 
-Message downloadFileService(char *file_name) {
-	char *buff = "Download file";
-	char response[BUFF_SIZE];
-	int ret = sendMessage(buff, strlen(buff));
-	if (ret == SOCKET_ERROR)
-		printf("Error! Cannot send mesage.\n");
-	/*bool ret1 = TransmitFile(client, fp, 0, 0, NULL, NULL, TF_USE_DEFAULT_WORKER);
-	if (!ret1)
-	printf("Error! Cannot send mesage %d.\n", WSAGetLastError());*/
-	//Receive echo message
-	ret = receiveMessage(response);
-	if (ret == SOCKET_ERROR) {
-		if (WSAGetLastError() == WSAETIMEDOUT)
-			printf("Time-out!\n");
-		else printf("Error! Cannot receive message.\n");
+Message downloadFileService(char* tracePath, char* saveLocation) {
+	//filePath => tao file rong de luu du 
+	int ret, result, index = 0;
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
+	Message message_resp;
+	//create and send request upload with payload is destination file name
+	ret = messageToBuff(Message(DOWNLOAD_FILE, strlen(tracePath), tracePath), sendBuff);
+	result = sendMessage(sendBuff, ret);
+	if (result == 0) {
+		return Message();
 	}
-	else {
-		response[ret] = '\0';
-		printf("%s\n", response);
-	};
+	cout << saveLocation << endl;
+	do {
+		result = receiveMessage(recvBuff);
+		while (result < 0) {
+			cout << "\n\n\n\n\n\n\n\n\n\n\nfailed\n\n\n\n\n\n\n\n\n" << endl;
+			result = receiveMessage(recvBuff);
+		}
+		message_resp = buffToMessage(recvBuff);
+		if (message_resp.opcode == TRANFER_DONE) break;
+		//append message.payload to file
+		cout << "appending" << endl;
+		appendToFile(saveLocation, message_resp.payload, message_resp.length);
+	} while (true);
+	cout << "11111111" << endl;
+	_getch();
+	return message_resp;
+}
+
+Message downloadFolderService(char* tracePath, char* saveLocation) {
+	Message message_resp;
+	return message_resp;
 }
 
 int getMetadataService(char *metaData) {
