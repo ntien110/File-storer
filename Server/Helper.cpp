@@ -106,3 +106,22 @@ void writeUserToFile() {
 	}
 	outFile.close();
 }
+
+
+char* getTimestamp()
+{
+	time_t rawtime;
+	struct tm* timeinfo;
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	char* time = asctime(timeinfo);
+
+	char* newLine = strstr(time, "\n");
+	if (newLine)
+	{
+		*newLine = 0;
+	}
+
+	return time;
+}

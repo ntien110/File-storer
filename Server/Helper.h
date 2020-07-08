@@ -13,5 +13,6 @@ Message buffToMessage(char *buff);
 int messageToBuff(Message message, char *buff);
 void readUserFromFile();
 void writeUserToFile();
+char* getTimestamp();
 
 #endif
