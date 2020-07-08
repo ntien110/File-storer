@@ -120,6 +120,15 @@ vector<char*> split(char* string, char* delimiter) {
 	return re;
 }
 
+Node* navigateInTree(Node* root, char* tracePath) {
+	vector<char*> indexes = split(tracePath, ",");
+	Node* curNode = root;
+	for (int i = 0; i < indexes.size(); i++) {
+		curNode = curNode->children[atoi(indexes[i])];
+	}
+	return curNode;
+}
+
 /*
 Create a tree for the folder structure that the string represent
 
