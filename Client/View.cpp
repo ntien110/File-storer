@@ -8,7 +8,38 @@
 #pragma warning(disable:4996)
 
 stack<Node*> folderStack;
+vector<int> pathStack;
 Node* curNode;
+
+void resetDirectoryTree() {
+	char* metadata = new char[8296];
+	int result = getMetadataService(metadata);
+	if (result <= 0) {
+		cout << "Error on get user directory" << endl;
+		metadata = "//";
+	}
+	curNode = stringToTree(metadata, userid);
+
+	while (folderStack.size() > 0) {
+		folderStack.pop();
+	}
+	folderStack.push(curNode);
+
+	while (pathStack.size() > 0) {
+		pathStack.pop_back();
+	}
+}
+
+char* getCurTracePath() {
+	char* tracePath = new char[64];
+	strcpy(tracePath, "");
+	char temp[3];
+	for (int i = 0; i < pathStack.size(); i++) {
+		itoa(pathStack[i], temp, 10);
+		strcat(tracePath, temp);
+	}
+	return tracePath;
+}
 
 void drawOptions(string title, string options[], int count) {
 	cout << "\t-------------------------------\t" << setw(10) << left << title << "---------------------------------\n";
@@ -155,9 +186,18 @@ Node* selectView(bool folderOnly) {
 void goToView() {
 	folderStack.push(curNode);
 	curNode = selectView(true);
+	
 	if (!curNode) {
 		curNode = folderStack.top();
 		folderStack.pop();
+	}
+	else {
+		for (int i = 0; i < folderStack.top()->children.size; i++) {
+			if (strcmp(folderStack.top()->children[i]->name, curNode->name) == 0) {
+				pathStack.push_back(i);
+				break;
+			}
+		}
 	}
 }
 
@@ -168,6 +208,7 @@ void createDirectoryView() {
 	cin >> name;
 	//Message result = loginService(username, password);
 	drawResponse(111, name);//result.opcode, result.payload);
+	resetDirectoryTree();
 	return;
 }
 
@@ -178,6 +219,7 @@ void uploadFolderView() {
 	cin >> path;
 	//Message result = loginService(username, password);
 	drawResponse(111, path);//result.opcode, result.payload);
+	resetDirectoryTree();
 	return;
 }
 
@@ -188,6 +230,7 @@ void uploadFileView() {
 	cin >> path;
 	//Message result = loginService(username, password);
 	drawResponse(111, path);//result.opcode, result.payload);
+	resetDirectoryTree();
 	return;
 }
 
@@ -205,6 +248,7 @@ void downloadView() {
 	drawResponse(111, path);//result.opcode, result.payload);
 	return;
 }
+
 void deleteView() {
 	Node* selectedNode = selectView(false);
 	if (!selectedNode) {
@@ -213,6 +257,7 @@ void deleteView() {
 
 	//Message result = loginService(username, password);
 	drawResponse(111, "Deleting...");//result.opcode, result.payload);
+	resetDirectoryTree();
 	return;
 }
 
@@ -222,13 +267,7 @@ void workWithFolder() {
 		return;
 	}
 
-	char* metadata = new char[8296];
-	int result = getMetadataService(metadata);
-	if (result <= 0) {
-		cout << "Error on get user directory" << endl;
-		metadata = "//";
-	}
-	curNode = stringToTree(metadata, userid);
+	resetDirectoryTree();
 
 	string options[8] = {
 		"Di den",
@@ -255,6 +294,10 @@ void workWithFolder() {
 			if (!folderStack.empty()) {
 				curNode = folderStack.top();
 				folderStack.pop();
+			}
+
+			if (!pathStack.empty()) {
+				pathStack.pop_back();
 			}
 			break;
 		case '3':
