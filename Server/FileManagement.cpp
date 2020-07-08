@@ -380,3 +380,13 @@ int deleteFile(char* fileName) {
 	else
 		return 0;
 }
+
+Node* navigateInTree(Node* root, char* tracePath) {
+	vector<char*> indexes = split(tracePath, ",");
+	Node* curNode = root;
+	for (int i = 0; i < indexes.size(); i++) {
+		curNode = curNode->children[atoi(indexes[i])];
+	}
+	return curNode;
+}
+

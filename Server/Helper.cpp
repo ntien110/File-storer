@@ -23,7 +23,6 @@ int sendMessage(SOCKET client, char *message, int length) {
 		index += ret;
 		length -= ret;
 	}
-	cout << "Da gui: " << message << endl;
 	return index;
 }
 
@@ -34,6 +33,7 @@ int receiveMessage(SOCKET client, char *message) {
 	ret = recv(client, len, BUFF_SIZE, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	int length = atoi(len);
+	cout << "da nhan Do dai: " << length << endl;
 	while (length > 0) {
 		ret = recv(client, &message[index], length, 0);
 		if (ret == SOCKET_ERROR) {
@@ -43,7 +43,6 @@ int receiveMessage(SOCKET client, char *message) {
 		length -= ret;
 	}
 	message[index] = '\0';
-	cout << "Da nhan: " << message << endl;
 	return index;
 }
 

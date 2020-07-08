@@ -12,12 +12,14 @@ int sendMessage(char *message, int length) {
 	_itoa_s(length, len, 10);
 	ret = send(CLIENT, len, BUFF_SIZE, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
+	cout << "Da gui do dai: " << length << endl;
 	while (length > 0) {
 		ret = send(CLIENT, &message[index], length, 0);
 		if (ret == SOCKET_ERROR) continue;
 		index += ret;
 		length -= ret;
 	}
+	cout << "Da gui ret: " << ret << endl;
 	return index;
 }
 
