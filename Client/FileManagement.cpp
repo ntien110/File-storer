@@ -105,7 +105,6 @@ vector<char*> split(char* string, char* delimiter) {
 		else {
 			re.push_back("");
 		}
-		//cout << p << endl;
 		p = strtok_new(NULL, delimiter);
 	}
 	return re;

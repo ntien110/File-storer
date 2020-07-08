@@ -93,7 +93,8 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 		case DOWNLOAD_FILE:
 			ret = downloadFileService(socket, message);
 			break;
-		case UPLOAD_FOLDER:
+		case CREATE_FOLDER:
+			ret = createFolderService(socket, message);
 			break;
 		case DOWNLOAD_FOLDER: 
 			break;
@@ -112,8 +113,11 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 }
 
 int closeClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
+	if (userLogged[socket] != 0) {
+		userLogged.erase(socket);
+	}
 	if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
-		printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_CLOSE_BIT]);
+		printf("FD_CLOSE failed with error %d\n", sockEvent.iErrorCode[FD_CLOSE_BIT]);
 		return 0;
 	}
 	//Release socket and event

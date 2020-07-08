@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		default:
-			cout << "Lua chon khong phu hop, vui long chon lai!!!!/n";
+			drawResponse(0, "Lua chon khong phu hop, vui long chon lai!!!!");
 			break;
 		};
 	} while (chosen != '5');

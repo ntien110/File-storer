@@ -19,7 +19,7 @@ Message loginService(char *username, char *password) {
 	Message message_resp;
 
 	strcpy(info_login, username);
-	strcpy(&info_login[strlen(username)], " ");
+	strcpy(&info_login[strlen(username)], "\n");
 	strcpy(&info_login[strlen(username) + 1], password);
 	length = strlen(username) + 1 + strlen(password);
 	messageToBuff(Message(LOGIN, length, info_login), message);
@@ -69,7 +69,7 @@ Message registerService(char *username, char *password) {
 	Message message_resp;
 
 	strcpy(info_register, username);
-	strcpy(&info_register[strlen(username)], " ");
+	strcpy(&info_register[strlen(username)], "\n");
 	strcpy(&info_register[strlen(username) + 1], password);
 	length = strlen(username) + 1 + strlen(password);
 	messageToBuff(Message(REGISTER, length, info_register), message);
@@ -104,9 +104,9 @@ Message uploadFileService(char *tracePath, char *fileName) {
 	if (result == 0) {
 		return Message();
 	}
-
+	cout << "Dang gui file len ..." << endl;
 	do {
-		ret = readFile(fileName, index, 1024, data);
+		ret = readFile(fileName, index, BUFF_FILE, data);
 		data[ret] = 0;
 		if (ret == -1) return Message();
 		if (ret == 0) break;
@@ -115,6 +115,7 @@ Message uploadFileService(char *tracePath, char *fileName) {
 		r = sendMessage( sendBuff, r);
 		if (r == -1) return Message();
 	} while (ret != 0);
+	cout << "Da gui file len thanh cong!!!" << endl;
 	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
 	ret = sendMessage(sendBuff, ret);
 	result = receiveMessage(recvBuff);
@@ -136,28 +137,47 @@ Message downloadFileService(char* tracePath, char* saveLocation) {
 	if (result == 0) {
 		return Message();
 	}
-	cout << saveLocation << endl;
+	cout << "Dang tai ..." << endl;
 	do {
 		result = receiveMessage(recvBuff);
 		while (result < 0) {
-			cout << "\n\n\n\n\n\n\n\n\n\n\nfailed\n\n\n\n\n\n\n\n\n" << endl;
 			result = receiveMessage(recvBuff);
 		}
 		message_resp = buffToMessage(recvBuff);
 		if (message_resp.opcode == TRANFER_DONE) break;
 		//append message.payload to file
-		cout << "appending" << endl;
 		appendToFile(saveLocation, message_resp.payload, message_resp.length);
 	} while (true);
-	cout << "11111111" << endl;
-	_getch();
+	cout << "Da tai xong!!!" << endl;
+	return message_resp;
+}
+
+Message createFolderService(char* tracePath, char* nameFolder) {
+	int ret, result, index = 0;
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE];
+	Message message_resp;
+	//create and send request upload with payload is destination file name
+	/*str_cpy(data, tracePath, strlen(tracePath));
+	str_cpy(data + strlen(tracePath), "\n", 1);
+	str_cpy(data + strlen(tracePath) + 1, fileName, strlen(fileName));
+	data[strlen(tracePath) + strlen(fileName) + 1] = '\0';*/
+
+	ret = messageToBuff(Message(CREATE_FOLDER, strlen(data), data), sendBuff);
+	result = sendMessage(sendBuff, ret);
+	if (result == 0) {
+		return Message();
+	}
+	result = receiveMessage(recvBuff);
+	if (result < 0) {
+		return Message();
+	}
+	message_resp = buffToMessage(recvBuff);
 	return message_resp;
 }
 
 Message downloadFolderService(char* tracePath, char* saveLocation) {
-	Message message_resp;
-	return message_resp;
-}
+	return Message();
+};
 
 int getMetadataService(char *metaData) {
 	int ret, result, index = 0;
@@ -170,9 +190,7 @@ int getMetadataService(char *metaData) {
 	}
 	do {
 		result = receiveMessage(message);
-		if (result < 0) {
-			return result;
-		}
+		if (result < 0) continue;
 		message_resp = buffToMessage(message);
 		if (message_resp.opcode == TRANFER_DONE) break;
 		str_cpy(metaData + index, message_resp.payload, message_resp.length);

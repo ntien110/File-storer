@@ -15,6 +15,7 @@ void drawResponse(int code, string response);
 void registerView();
 void loginView();
 void logoutView();
+void createFolderView();
 void workWithFolder();
 
 #endif

@@ -17,6 +17,7 @@ void resetDirectoryTree() {
 	int result = getMetadataService(metadata);
 	if (result <= 0) {
 		cout << "Error on get user directory" << endl;
+		getch();
 		metadata = "//";
 	}
 	curNode = stringToTree(metadata, userid);
@@ -196,24 +197,27 @@ void goToView() {
 	}
 	else {
 		for (int i = 0; i < folderStack.top()->children.size(); i++) {
-			cout << folderStack.top()->children[i]->name << ":" << curNode->name << endl;
 			if (strcmp(folderStack.top()->children[i]->name, curNode->name) == 0) {
 				pathStack.push_back(i);
 				break;
 			}
 		}
 	}
-	_getch();
 }
 
-void createDirectoryView() {
-	char name[256];
+void createFolderView() {
+	char nameFolder[256];
 
-	cout << "Directory name: ";
-	cin >> name;
-	//Message result = loginService(username, password);
-	drawResponse(111, name);//result.opcode, result.payload);
-	resetDirectoryTree();
+	cout << "Nhap ten folder muon tao: ";
+	cin >> nameFolder;
+	Message result = createFolderService(getCurTracePath(), nameFolder);
+	if (result.opcode == NULL) {
+		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
+	}
+	else {
+		drawResponse(result.opcode, result.payload);//result.opcode, result.payload);
+		resetDirectoryTree();
+	}
 	return;
 }
 
@@ -236,11 +240,10 @@ void uploadFileView() {
 	if (result.opcode == NULL) {
 		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
 	}
-	drawResponse(result.opcode, result.payload);
-	return;
-	//Message result = loginService(username, password);
-	drawResponse(111, path);//result.opcode, result.payload);
-	resetDirectoryTree();
+	else {
+		drawResponse(result.opcode, result.payload);//result.opcode, result.payload);
+		resetDirectoryTree();
+	}
 	return;
 }
 
@@ -260,10 +263,6 @@ void downloadView() {
 			break;
 		}
 	}
-	cout << selectedNode->name << endl;
-	cout << getCurTracePath() << endl;
-
-
 	char saveLocation[256];
 	cout << "Path to save file/folder: ";
 	cin >> saveLocation;
@@ -335,7 +334,7 @@ void workWithFolder() {
 			}
 			break;
 		case '3':
-			createDirectoryView();
+			createFolderView();
 			break;
 		case '4':
 			uploadFolderView();
@@ -350,7 +349,7 @@ void workWithFolder() {
 			deleteView();
 			break;
 		default:
-			cout << "Lua chon khong phu hop, vui long chon lai!!!!\n";
+			drawResponse(0, "Lua chon khong phu hop, vui long chon lai!!!!");
 			break;
 		};
 	} while (chosen != '8');

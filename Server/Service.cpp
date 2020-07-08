@@ -11,7 +11,7 @@ int registerService(SOCKET socket, Message message_recv) {
 	bool status = true;
 
 	for (i = 0; i < message_recv.length; i++) {
-		if (message_recv.payload[i] == ' ') {
+		if (message_recv.payload[i] == '\n') {
 			username[i] = 0;
 			break;
 		}
@@ -73,7 +73,7 @@ int loginService(SOCKET socket, Message message_recv) {
 	int i, ret;
 	//copy data from message's payload to usernaem, password ( separate by space(' '))
 	for (i = 0; i < message_recv.length; i++) {
-		if (message_recv.payload[i] == ' ') {
+		if (message_recv.payload[i] == '\n') {
 			username[i] = 0;
 			break;
 		}
@@ -181,6 +181,7 @@ int uploadFileService(SOCKET socket, Message message) {
 	}
 	addNewNode(curNode, true, filePath[filePath.size() - 1], getTimestamp(), userid);
 	curNode = curNode->children[curNode->children.size() - 1];
+	cout << "Dang nhan file ..." << endl;
 	do {
 		result = receiveMessage(socket, recvBuff);
 		while (result < 0) {
@@ -191,13 +192,12 @@ int uploadFileService(SOCKET socket, Message message) {
 		//append message.payload to file
 		appendToFile(curNode->getPath(), message_resp.payload, message_resp.length);
 	} while (true);
-
+	cout << "Da nhan file!!!" << endl;
 	updateMetadata(directoryTree, userid);
-
 	char * payload_resp = "Da tai file len thanh cong!";
 	ret = messageToBuff(Message(SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);
-	return 0;
+	return ret;
 };
 
 int downloadFileService(SOCKET socket, Message message) {
@@ -205,7 +205,6 @@ int downloadFileService(SOCKET socket, Message message) {
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE], fileName[BUFF_SIZE]="";
 	Message message_resp;
 	//xu li gan file name
-	cout << message.payload << endl;
 	vector<char*> tracePath = split(message.payload, ",");
 	
 	// get directory
@@ -225,31 +224,67 @@ int downloadFileService(SOCKET socket, Message message) {
 	for (int i = 0; i < tracePath.size(); i++) {
 		curNode = curNode->children[atoi(tracePath[i])];
 	}
-
-	cout << curNode->name << endl;
-	cout << curNode->getPath() << endl;
 	//create and send request upload with payload is destination file name
+	cout << "Dang gui file di ..." << endl;
 	do {
-		ret = readFile(curNode->getPath(), index, 1024, data);
+		ret = readFile(curNode->getPath(), index, BUFF_FILE, data);
 		data[ret] = 0;
 		if (ret == -1) return SOCKET_ERROR;
 		if (ret == 0) break;
-		index += ret;
 		int r = messageToBuff(Message(TRANFERING, ret, data), sendBuff);
 		r = sendMessage(socket, sendBuff, r);
-		if (r == -1) {
-			/*return SOCKET_ERROR;*/
-			index -= ret;
-			continue;
-		}
+		if (r == -1) continue;
+		index += ret;
 	} while (ret != 0);
 	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);
 	if (result < 0) {
 		return SOCKET_ERROR;
 	}
+	cout << "Da gui xong file di!!!" << endl;
 	return ret;
 };
+
+int createFolderService(SOCKET socket, Message message) {
+	int ret, result;
+	char sendBuff[BUFF_SIZE];
+	// payload parse
+	message.payload[message.length] = '\n';
+	message.payload[message.length + 1] = '\0';
+
+	vector<char*> components = split(message.payload, "\n");
+	vector<char*> tracePath = split(components[0], ",");
+	strcat(components[1], "\\");
+	vector<char*> filePath = split(components[1], "\\");
+
+	// get directory
+	char file_name[BUFF_SIZE] = "", metadata[10000];
+	char*  userid = new char[8];
+	itoa(userLogged[socket], userid, 10);
+	strcpy(file_name, appPath);
+	addToPath(file_name, userid);
+	addToPath(file_name, "metaData");
+
+	result = readFile(file_name, 0, 10000, metadata);
+	if (result < 0) {
+		return -1;
+	}
+	Node* directoryTree = stringToTree(metadata, userid);
+
+	// process update tree
+	Node* curNode = directoryTree;
+	for (int i = 0; i < tracePath.size(); i++) {
+		curNode = curNode->children[atoi(tracePath[i])];
+	}
+	addNewNode(curNode, true, filePath[filePath.size() - 1], getTimestamp(), userid);
+	curNode = curNode->children[curNode->children.size() - 1];
+
+	updateMetadata(directoryTree, userid);
+	char * payload_resp = "Da tao folder thanh cong!";
+	ret = messageToBuff(Message(SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
+	ret = sendMessage(socket, sendBuff, ret);
+	return ret;
+}
 
 int tranferMetaService(SOCKET socket) {
 	char userid[8], file_name[BUFF_SIZE] = "";
@@ -266,14 +301,14 @@ int tranferFile(SOCKET socket, char *file_name) {
 	char data[BUFF_SIZE];
 	int ret = 0, index = 0;
 	do {
-		ret = readFile(file_name, index , 1024, data);
+		ret = readFile(file_name, index , BUFF_FILE, data);
 		data[ret] = 0;
 		if (ret == -1) return -1;
 		if (ret == 0) break;
-		index += ret;
 		int r = messageToBuff(Message(TRANFERING, ret, data), sendBuff);
 		r = sendMessage(socket, sendBuff, r);
-		if (r == -1) return -1;
+		if (r == -1) continue;
+		index += ret;
 	} while (ret != 0);
 	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);

@@ -16,8 +16,8 @@
 
 using namespace std;
 
-#define BUFF_SIZE 2048
-#define BUFF_FILE 8192
+#define BUFF_SIZE 8192
+#define BUFF_FILE 8000
 #define PAYLOAD_SIZE BUFF_SIZE - 3
 
 struct Message {
@@ -42,7 +42,8 @@ enum REQUEST_CODE {
 	GET_META_FILE = 130,
 	UPLOAD_FILE = 140,
 	DOWNLOAD_FILE = 150,
-	UPLOAD_FOLDER = 160,
+	CREATE_FOLDER = 160,
+	//UPLOAD_FOLDER = 160,
 	DOWNLOAD_FOLDER = 170,
 	DELETE_DATA = 180
 };

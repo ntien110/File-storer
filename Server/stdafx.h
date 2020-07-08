@@ -17,8 +17,8 @@
 
 using namespace std;
 
-#define BUFF_SIZE 2048
-#define BUFF_FILE 8192
+#define BUFF_SIZE 8192
+#define BUFF_FILE 8000
 #define PAYLOAD_SIZE BUFF_SIZE - 3
 
 struct Message {
@@ -27,7 +27,6 @@ struct Message {
 	char payload[PAYLOAD_SIZE];
 	Message() {};
 	Message(uint8_t _opcode, uint16_t _length, char *_payload) {
-		cout << "dfdsf" << _length << endl;
 		opcode = _opcode;
 		length = _length;
 		for (int i = 0; i < _length; i++) {
@@ -61,7 +60,8 @@ enum REQUEST_CODE {
 	GET_META_FILE = 130,
 	UPLOAD_FILE = 140,
 	DOWNLOAD_FILE = 150,
-	UPLOAD_FOLDER = 160,
+	CREATE_FOLDER = 160,
+	//UPLOAD_FOLDER = 160,
 	DOWNLOAD_FOLDER = 170,
 	DELETE_DATA = 180
 };

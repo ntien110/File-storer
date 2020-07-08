@@ -11,8 +11,9 @@ Message registerService(char *username, char *password);
 int getMetadataService(char *metaData);
 Message uploadFileService(char *pathDir, char *fileName);
 Message downloadFileService(char* tracePath, char* saveLocation);
-Message uploadFolderService();
+Message createFolderService(char* tracePath, char* nameFolder);
+//Message uploadFolderService();
 Message downloadFolderService(char* tracePath, char* saveLocation);
-Message deleteFileService(char *pathTrace);
+//Message deleteFileService(char *pathTrace);
 
 #endif
