@@ -4,6 +4,7 @@
 #include "Connection.h"
 #include "FileManagement.h"
 #pragma comment(lib, "Ws2_32.lib")
+#pragma warning(disable:4996)
 
 #define PORT 5500
 
@@ -25,6 +26,14 @@ int main(int argc, char **argv) {
 	//init file management
 	setAppPath();
 	createDirectoryByPath(appPath);
+	
+	char* accountFileName = new char[256];
+	strcpy(accountFileName, appPath);
+	addToPath(accountFileName, "account.txt");
+
+	if (getFileLength(accountFileName) < 0) {
+		writeToFile(accountFileName, "", 0);
+	}
 
 	ret = initServer(PORT, listenSocket, socks, events, nEvents);
 	if (ret == 0) return 0;
