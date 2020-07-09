@@ -3,6 +3,13 @@
 #include "Helper.h"
 #include "FileManagement.h"
 
+/*
+Logical for handle register request
+input: client's socket, recieved message
+output: 
+	>=0: sended message's length
+	<0: Error (close socket)
+*/
 int registerService(SOCKET socket, Message message_recv) {
 	Message message_resp;
 	char username[256], password[256], sendBuff[BUFF_SIZE], new_user[BUFF_SIZE];
@@ -66,6 +73,13 @@ int registerService(SOCKET socket, Message message_recv) {
 	return ret;
 };
 
+/*
+Logical for handle login request
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int loginService(SOCKET socket, Message message_recv) {
 	Message message_resp;
 	char username[256], password[256], sendBuff[BUFF_SIZE];
@@ -131,6 +145,13 @@ int loginService(SOCKET socket, Message message_recv) {
 	return ret;
 };
 
+/*
+Logical for handle logout request
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int logoutService(SOCKET socket, Message message) {
 	int ret;
 	char sendBuff[BUFF_SIZE];
@@ -147,6 +168,13 @@ int logoutService(SOCKET socket, Message message) {
 	return ret;
 };
 
+/*
+Logical for handle upload file to server request
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int uploadFileService(SOCKET socket, Message message) {
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
@@ -200,6 +228,13 @@ int uploadFileService(SOCKET socket, Message message) {
 	return ret;
 };
 
+/*
+Logical for handle download file to client request
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int downloadFileService(SOCKET socket, Message message) {
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE], fileName[BUFF_SIZE]="";
@@ -245,6 +280,13 @@ int downloadFileService(SOCKET socket, Message message) {
 	return ret;
 };
 
+/*
+Logical for handle create new folder request
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int createFolderService(SOCKET socket, Message message) {
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
@@ -286,6 +328,13 @@ int createFolderService(SOCKET socket, Message message) {
 	return ret;
 }
 
+/*
+Logical for handle get folder structure request
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int tranferMetaService(SOCKET socket) {
 	char userid[8], file_name[BUFF_SIZE] = "";
 	itoa(userLogged[socket], userid, 10);
@@ -296,6 +345,13 @@ int tranferMetaService(SOCKET socket) {
 	return ret;
 }
 
+/*
+Logical for sending file
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int tranferFile(SOCKET socket, char *file_name) {
 	char sendBuff[BUFF_SIZE];
 	char data[BUFF_SIZE];
@@ -315,6 +371,13 @@ int tranferFile(SOCKET socket, char *file_name) {
 	return index;
 }
 
+/*
+Logical for handle delete file/folder request
+input: client's socket, recieved message
+output:
+>=0: sended message's length
+<0: Error (close socket)
+*/
 int deleteService(SOCKET socket, Message message){
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE], fileName[BUFF_SIZE] = "";

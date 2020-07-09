@@ -85,6 +85,11 @@ Message registerService(char *username, char *password) {
 	return message_resp;
 };
 
+/*
+	Logical for handle upload file request
+	input: file's trace path, file's original name
+	output: Message message response from server
+*/
 Message uploadFileService(char *tracePath, char *fileName) {
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE];
@@ -126,6 +131,11 @@ Message uploadFileService(char *tracePath, char *fileName) {
 	return message_resp;
 }
 
+/*
+Logical for handle download file request
+input: file's trace path, file's save location
+output: Message message response from server
+*/
 Message downloadFileService(char* tracePath, char* saveLocation) {
 	//filePath => tao file rong de luu du 
 	int ret, result, index = 0;
@@ -152,6 +162,11 @@ Message downloadFileService(char* tracePath, char* saveLocation) {
 	return message_resp;
 }
 
+/*
+Logical for handle create folder request
+input: folder's trace path, folder's name
+output: Message message response from server
+*/
 Message createFolderService(char* tracePath, char* nameFolder) {
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE];
@@ -176,10 +191,20 @@ Message createFolderService(char* tracePath, char* nameFolder) {
 	return message_resp;
 }
 
+/*
+Logical for handle download folder request
+
+ TODO
+*/
 Message downloadFolderService(char* tracePath, char* saveLocation) {
 	return Message();
 };
 
+/*
+Logical for handle delete file/folder request
+input: file/folder's trace path
+output: Message message response from server
+*/
 Message deleteService(char* tracePath){
 	int ret, result, index = 0;
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
@@ -199,6 +224,11 @@ Message deleteService(char* tracePath){
 	return message_resp;
 }
 
+/*
+Logical for handle getting folder tructure request
+input: file's trace path, file's save location
+output: Message message response from server
+*/
 int getMetadataService(char *metaData) {
 	int ret, result, index = 0;
 	char message[BUFF_SIZE];

@@ -18,7 +18,6 @@ int sendMessage(char *message, int length) {
 		index += ret;
 		length -= ret;
 	}
-	cout << "Da gui do dai: " << index << endl;
 	return index;
 }
 
@@ -37,7 +36,6 @@ int receiveMessage(char *message) {
 		index += ret;
 		length -= ret;
 	}
-	cout << "Da nhan do dai: " << index << endl;
 	message[index] = '\0';
 	return index;
 }

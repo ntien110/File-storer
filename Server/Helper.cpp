@@ -22,7 +22,6 @@ int sendMessage(SOCKET client, char *message, int length) {
 		index += ret;
 		length -= ret;
 	}
-	cout << "Da gui do dai: " << index << endl;
 	return index;
 }
 
@@ -42,7 +41,6 @@ int receiveMessage(SOCKET client, char *message) {
 		length -= ret;
 	}
 	message[index] = '\0';
-	cout << "Da nhan do dai: " << index << endl;
 	return index;
 }
 

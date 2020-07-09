@@ -12,6 +12,12 @@ stack<Node*> folderStack;
 vector<int> pathStack;
 Node* curNode;
 
+/*
+	Reset the current directory tree ( fetch from server)
+
+	input:
+	output: void
+*/
 void resetDirectoryTree() {
 	char* metadata = new char[8296];
 	int result = getMetadataService(metadata);
@@ -31,6 +37,12 @@ void resetDirectoryTree() {
 	}
 }
 
+/*
+Reset the current file/folder path
+
+input:
+output: char* path
+*/
 char* getCurTracePath() {
 	char* tracePath = new char[64];
 	strcpy(tracePath, ",");
@@ -43,7 +55,12 @@ char* getCurTracePath() {
 	return tracePath;
 }
 
+/*
+	Draw options to screen
 
+input: screan title, option list, amount of options
+output: void
+*/
 void drawOptions(string title, string options[], int count) {
 	cout << "\t-------------------------------\t" << setw(10) << left << title << "---------------------------------\n";
 	for (int i = 0; i < count; i++) {
@@ -54,6 +71,12 @@ void drawOptions(string title, string options[], int count) {
 	cout << "\t----------------------------------------------------------------------------\n";
 }
 
+/*
+Draw recieved message to screen
+
+input: message code, message's payload
+output: void
+*/
 void drawResponse(int code, string response) {
 	cout << "\t--------------------------------" << "PHAN HOI" << "-----------------------------------\n";
 	cout << setw(76) << left << "\t|" << "|\n";
@@ -62,6 +85,12 @@ void drawResponse(int code, string response) {
 	cout << "\t----------------------------------------------------------------------------\n";
 }
 
+/*
+Draw optional message to screen
+
+input: message string
+output: void
+*/
 void drawMessage(string message) {
 	cout << "\t--------------------------------" << "THONG BAO" << "-----------------------------------\n";
 	cout << setw(76) << left << "\t|" << "|\n";
@@ -70,6 +99,12 @@ void drawMessage(string message) {
 	cout << "\t----------------------------------------------------------------------------\n";
 }
 
+/*
+Draw current folder's children
+
+input: 
+output: void
+*/
 void drawFileStructure() {
 
 	cout << "\t--------------------------" << "NOI DUNG THU MUC: " << curNode->name << "------------------------------\n";
@@ -86,10 +121,17 @@ void drawFileStructure() {
 	cout << "\t----------------------------------------------------------------------------\n";
 }
 
+/*
+Draw register screen
+
+input: 
+output: void
+*/
 void registerView() {
 	char username[256], password[256];
 	cout << "Username: ";
 	cin >> username;
+	// cin.ignore();
 	cout << "Password: ";
 	cin >> password;
 
@@ -102,6 +144,12 @@ void registerView() {
 	return;
 };
 
+/*
+Draw login screen
+
+input:
+output: void
+*/
 void loginView() {
 	char username[256], password[256];
 
@@ -111,6 +159,7 @@ void loginView() {
 	}
 	cout << "Username: ";
 	cin >> username;
+	// cin.ignore();
 	cout << "Password: ";
 	cin >> password;
 	Message result = loginService(username, password);
@@ -126,6 +175,12 @@ void loginView() {
 	return;
 };
 
+/*
+Draw logout screen
+
+input: screan title, option list, amount of options
+output: void
+*/
 void logoutView() {
 	if (!isLoggedIn) {
 		drawResponse(0, "Ban chua dang nhap, khong the dang xuat!");
@@ -144,6 +199,12 @@ void logoutView() {
 	return;
 };
 
+/*
+Draw screan to select file/folder in the current folder
+
+input: option allow to select files in the folder or not
+output: Node* represent the selected file/folder 
+*/
 Node* selectView(bool folderOnly) {
 	vector<Node*> nodes;
 	for (int i = 0; i < curNode->children.size(); i++) {
@@ -186,6 +247,12 @@ Node* selectView(bool folderOnly) {
 	}
 }
 
+/*
+Draw screen to go to an folder in current folder
+
+input: 
+output: void
+*/
 void goToView() {
 	folderStack.push(curNode);
 	curNode = selectView(true);
@@ -204,13 +271,20 @@ void goToView() {
 	}
 }
 
+/*
+Draw screen to create new folder
+
+input:
+output: void
+*/
 void createFolderView() {
 	char nameFolder[256];
 	bool ok;
 	do {
 		ok = false;
 		cout << "Nhap ten folder muon tao: ";
-		cin.getline(nameFolder, sizeof(nameFolder));
+		cin >> nameFolder;
+		// cin.ignore();
 		
 		for (int i = 0; i < folderStack.top()->children.size(); i++) {
 			if (strcmp(folderStack.top()->children[i]->name, nameFolder) == 0) {
@@ -233,21 +307,34 @@ void createFolderView() {
 	return;
 }
 
+/*
+Draw screen to upload folder to server
+
+ TODO
+*/
 void uploadFolderView() {
 	char path[256];
 
 	cout << "Path to directory: ";
-	cin.getline(path, sizeof(path));
+	cin >> path;
+	// cin.ignore();
 	//Message result = loginService(username, password);
 	drawResponse(111, path);//result.opcode, result.payload);
 	resetDirectoryTree();
 	return;
 }
 
+/*
+Draw screen to upload file to server
+
+input:
+output: void
+*/
 void uploadFileView() {
 	char path[256];
 	cout << "Nhap ten file muon tai: ";
-	cin.getline(path, sizeof(path));
+	cin >> path;
+	// cin.ignore();
 	Message result = uploadFileService(getCurTracePath(), path);
 	if (result.opcode == NULL) {
 		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
@@ -259,6 +346,14 @@ void uploadFileView() {
 	return;
 }
 
+/*
+Draw screen to go to download file/folder
+
+
+
+input:
+output: void
+*/
 void downloadView() {
 	Node* selectedNode = selectView(false);
 	if (!selectedNode) {
@@ -275,7 +370,8 @@ void downloadView() {
 	}
 	char saveLocation[256];
 	cout << "Path to save file/folder: ";
-	cin.getline(saveLocation, sizeof(saveLocation));
+	cin >> saveLocation;
+	// cin.ignore();
 
 	Message result;
 	if (selectedNode->isFile) {
