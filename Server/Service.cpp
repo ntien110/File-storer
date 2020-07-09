@@ -340,7 +340,7 @@ int deleteService(SOCKET socket, Message message){
 		curNode = curNode->children[atoi(tracePath[i])];
 	}
 
-	curNode->children.erase(curNode->children.begin() + (atoi(tracePath[tracePath.size()]) - 1));
+	curNode->children.erase(curNode->children.begin() + (atoi(tracePath[tracePath.size()-1])));
 	updateMetadata(directoryTree, userid);
 	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);

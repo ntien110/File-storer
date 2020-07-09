@@ -152,7 +152,7 @@ Node* selectView(bool folderOnly) {
 		}
 	}
 
-	char chosen[2];
+	char chosen[3];
 	do {
 		system("CLS");
 		cout << "\t-------------------------------\t" << setw(10) << left << "OPTION" << "---------------------------------\n";
