@@ -14,6 +14,6 @@ Message downloadFileService(char* tracePath, char* saveLocation);
 Message createFolderService(char* tracePath, char* nameFolder);
 //Message uploadFolderService();
 Message downloadFolderService(char* tracePath, char* saveLocation);
-//Message deleteFileService(char *pathTrace);
+Message deleteService(char *pathTrace);
 
 #endif

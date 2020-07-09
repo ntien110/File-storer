@@ -246,17 +246,17 @@ int downloadFileService(SOCKET socket, Message message) {
 };
 
 int createFolderService(SOCKET socket, Message message) {
-	int ret, result;
-	char sendBuff[BUFF_SIZE];
+	int ret, result, index = 0;
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
+	Message message_resp;
 	// payload parse
 	message.payload[message.length] = '\n';
 	message.payload[message.length + 1] = '\0';
+	cout << message.payload << endl;
 
 	vector<char*> components = split(message.payload, "\n");
 	vector<char*> tracePath = split(components[0], ",");
-	strcat(components[1], "\\");
-	vector<char*> filePath = split(components[1], "\\");
-
+	cout << components[1] << endl;
 	// get directory
 	char file_name[BUFF_SIZE] = "", metadata[10000];
 	char*  userid = new char[8];
@@ -276,11 +276,11 @@ int createFolderService(SOCKET socket, Message message) {
 	for (int i = 0; i < tracePath.size(); i++) {
 		curNode = curNode->children[atoi(tracePath[i])];
 	}
-	addNewNode(curNode, true, filePath[filePath.size() - 1], getTimestamp(), userid);
+	addNewNode(curNode, false, components[1], NULL, userid);
 	curNode = curNode->children[curNode->children.size() - 1];
-
+	
 	updateMetadata(directoryTree, userid);
-	char * payload_resp = "Da tao folder thanh cong!";
+	char * payload_resp = "Da tai file len thanh cong!";
 	ret = messageToBuff(Message(SUCCESS, strlen(payload_resp), payload_resp), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);
 	return ret;
@@ -313,4 +313,39 @@ int tranferFile(SOCKET socket, char *file_name) {
 	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
 	ret = sendMessage(socket, sendBuff, ret);
 	return index;
+}
+
+int deleteService(SOCKET socket, Message message){
+	int ret, result, index = 0;
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE], fileName[BUFF_SIZE] = "";
+	Message message_resp;
+	//xu li gan file name
+	vector<char*> tracePath = split(message.payload, ",");
+
+	// get directory
+	char metadata[10000];
+	char*  userid = new char[8];
+	itoa(userLogged[socket], userid, 10);
+	strcpy(fileName, appPath);
+	addToPath(fileName, userid);
+	addToPath(fileName, "metaData");
+
+	result = readFile(fileName, 0, 10000, metadata);
+	if (result < 0) {
+		return -1;
+	}
+	Node* directoryTree = stringToTree(metadata, userid);
+	Node* curNode = directoryTree;
+	for (int i = 0; i < tracePath.size()-1; i++) {
+		curNode = curNode->children[atoi(tracePath[i])];
+	}
+
+	curNode->children.erase(curNode->children.begin() + (atoi(tracePath[tracePath.size()]) - 1));
+	updateMetadata(directoryTree, userid);
+	ret = messageToBuff(Message(TRANFER_DONE, 4, "Done"), sendBuff);
+	ret = sendMessage(socket, sendBuff, ret);
+	if (result < 0) {
+		return SOCKET_ERROR;
+	}
+	return ret;
 }

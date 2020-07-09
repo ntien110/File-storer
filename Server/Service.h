@@ -13,4 +13,6 @@ int downloadFileService(SOCKET socket, Message message);
 int createFolderService(SOCKET socket, Message message);
 int tranferMetaService(SOCKET socket);
 int tranferFile(SOCKET socket, char *file_name);
+int deleteService(SOCKET socket, Message message);
+
 #endif

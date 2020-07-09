@@ -157,16 +157,17 @@ Message createFolderService(char* tracePath, char* nameFolder) {
 	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE], data[BUFF_SIZE];
 	Message message_resp;
 	//create and send request upload with payload is destination file name
-	/*str_cpy(data, tracePath, strlen(tracePath));
+	str_cpy(data, tracePath, strlen(tracePath));
 	str_cpy(data + strlen(tracePath), "\n", 1);
-	str_cpy(data + strlen(tracePath) + 1, fileName, strlen(fileName));
-	data[strlen(tracePath) + strlen(fileName) + 1] = '\0';*/
+	str_cpy(data + strlen(tracePath) + 1, nameFolder, strlen(nameFolder));
+	data[strlen(tracePath) + strlen(nameFolder) + 1] = '\0';
 
 	ret = messageToBuff(Message(CREATE_FOLDER, strlen(data), data), sendBuff);
 	result = sendMessage(sendBuff, ret);
 	if (result == 0) {
 		return Message();
 	}
+
 	result = receiveMessage(recvBuff);
 	if (result < 0) {
 		return Message();
@@ -178,6 +179,25 @@ Message createFolderService(char* tracePath, char* nameFolder) {
 Message downloadFolderService(char* tracePath, char* saveLocation) {
 	return Message();
 };
+
+Message deleteService(char* tracePath){
+	int ret, result, index = 0;
+	char recvBuff[BUFF_SIZE], sendBuff[BUFF_SIZE];
+	Message message_resp;
+
+	ret = messageToBuff(Message(DELETE_DATA, strlen(tracePath), tracePath), sendBuff);
+	result = sendMessage(sendBuff, ret);
+	if (result == 0) {
+		return Message();
+	}
+
+	result = receiveMessage(recvBuff);
+	if (result < 0) {
+		return Message();
+	}
+	message_resp = buffToMessage(recvBuff);
+	return message_resp;
+}
 
 int getMetadataService(char *metaData) {
 	int ret, result, index = 0;

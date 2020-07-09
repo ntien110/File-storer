@@ -99,6 +99,7 @@ int communicateClientSocket(SOCKET &socket, WSANETWORKEVENTS sockEvent) {
 		case DOWNLOAD_FOLDER: 
 			break;
 		case DELETE_DATA: 
+			ret = deleteService(socket, message);
 			break;
 		default:
 			cout << "Request is not found!!!" << endl;

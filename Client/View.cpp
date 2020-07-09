@@ -17,7 +17,6 @@ void resetDirectoryTree() {
 	int result = getMetadataService(metadata);
 	if (result <= 0) {
 		cout << "Error on get user directory" << endl;
-		getch();
 		metadata = "//";
 	}
 	curNode = stringToTree(metadata, userid);
@@ -207,9 +206,22 @@ void goToView() {
 
 void createFolderView() {
 	char nameFolder[256];
+	bool ok;
+	do {
+		ok = false;
+		cout << "Nhap ten folder muon tao: ";
+		cin.getline(nameFolder, sizeof(nameFolder));
+		
+		for (int i = 0; i < folderStack.top()->children.size(); i++) {
+			if (strcmp(folderStack.top()->children[i]->name, nameFolder) == 0) {
+				cout << "Folder da ton tai!";
+				ok = true;
+			}
+		}
 
-	cout << "Nhap ten folder muon tao: ";
-	cin >> nameFolder;
+	} while (ok);
+
+
 	Message result = createFolderService(getCurTracePath(), nameFolder);
 	if (result.opcode == NULL) {
 		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
@@ -225,7 +237,7 @@ void uploadFolderView() {
 	char path[256];
 
 	cout << "Path to directory: ";
-	cin >> path;
+	cin.getline(path, sizeof(path));
 	//Message result = loginService(username, password);
 	drawResponse(111, path);//result.opcode, result.payload);
 	resetDirectoryTree();
@@ -235,7 +247,7 @@ void uploadFolderView() {
 void uploadFileView() {
 	char path[256];
 	cout << "Nhap ten file muon tai: ";
-	cin >> path;
+	cin.getline(path, sizeof(path));
 	Message result = uploadFileService(getCurTracePath(), path);
 	if (result.opcode == NULL) {
 		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
@@ -256,16 +268,14 @@ void downloadView() {
 	folderStack.push(curNode);
 
 	for (int i = 0; i < folderStack.top()->children.size(); i++) {
-		//cout << folderStack.top()->children[i]->name << ":" << selectedNode->name << endl;
 		if (strcmp(folderStack.top()->children[i]->name, selectedNode->name) == 0) {
 			pathStack.push_back(i);
-			cout << "ok" << endl;
 			break;
 		}
 	}
 	char saveLocation[256];
 	cout << "Path to save file/folder: ";
-	cin >> saveLocation;
+	cin.getline(saveLocation, sizeof(saveLocation));
 
 	Message result;
 	if (selectedNode->isFile) {
@@ -289,8 +299,21 @@ void deleteView() {
 		return;
 	}
 
-	//Message result = loginService(username, password);
-	drawResponse(111, "Deleting...");//result.opcode, result.payload);
+	folderStack.push(curNode);
+
+	for (int i = 0; i < folderStack.top()->children.size(); i++) {
+		if (strcmp(folderStack.top()->children[i]->name, selectedNode->name) == 0) {
+			pathStack.push_back(i);
+			break;
+		}
+	}
+
+	Message result = deleteService(getCurTracePath());
+
+	if (result.opcode == NULL) {
+		result = Message(NOT_FOUND, 52, "Khong the thuc hien hanh dong nay, vui long thu lai!");
+	}
+	drawResponse(result.opcode, result.payload);
 	resetDirectoryTree();
 	return;
 }
